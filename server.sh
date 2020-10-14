@@ -1,5 +1,5 @@
 sudo apt update;
-sudo apt upgrade;
+sudo apt upgrade -y;
 sudo ufw allow OpenSSH;
 sudo ufw allow Postfix;
 sudo ufw allow in "Apache Full";
@@ -13,7 +13,7 @@ sudo apt install --assume-yes mysql-server;
 sudo apt install --assume-yes apache2;
 sudo apt install --assume-yes php-fpm;
 wget https://mirrors.edge.kernel.org/ubuntu/pool/multiverse/liba/libapache-mod-fastcgi/libapache2-mod-fastcgi_2.4.7~0910052141-1.2_amd64.deb;
-echo "y" | sudo dpkg -i libapache2-mod-fastcgi_2.4.7~0910052141-1.2_amd64.deb;
+sudo dpkg -i libapache2-mod-fastcgi_2.4.7~0910052141-1.2_amd64.deb;
 sudo mv /etc/apache2/ports.conf /etc/apache2/ports.conf.default;
 echo "Listen 8080" | sudo tee /etc/apache2/ports.conf;
 sudo apt install --assume-yes net-tools;
