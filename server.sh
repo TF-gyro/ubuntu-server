@@ -59,8 +59,6 @@ sudo mkdir /var/www/html/xyz.wildfire.world;
 sudo a2enmod rewrite;
 sudo a2enmod ssl;
 sudo systemctl reload apache2;
-sudo add-apt-repository --yes ppa:certbot/certbot;
-sudo apt install --assume-yes python-certbot-apache;
 echo "ALTER USER 'mysql_root_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mysql_root_pass'; FLUSH PRIVILEGES; exit;" | sudo mysql;
 sudo apt install --assume-yes composer;
 sudo snap install --classic certbot;
