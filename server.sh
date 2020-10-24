@@ -63,7 +63,7 @@ echo "ALTER USER 'mysql_root_user'@'localhost' IDENTIFIED WITH mysql_native_pass
 sudo apt install --assume-yes composer;
 sudo snap install --classic certbot;
 sudo rm /var/www/html/xyz.wildfire.world -R;
-echo 'post_max_size = 1024M' | sudo tee -a /etc/php/7.4/fpm/php.ini
-echo 'upload_max_filesize = 1024M' | sudo tee -a /etc/php/7.4/fpm/php.ini
-echo 'memory_limit = 2048M' | sudo tee -a /etc/php/7.4/fpm/php.ini
+echo 'post_max_size = 1024M' | sudo tee -a /etc/php/7.4/fpm/php.ini;
+echo 'upload_max_filesize = 1024M' | sudo tee -a /etc/php/7.4/fpm/php.ini;
+echo 'memory_limit = 2048M' | sudo tee -a /etc/php/7.4/fpm/php.ini;
 sudo service php7.4-fpm restart;
