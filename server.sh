@@ -75,7 +75,6 @@ echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/source
 sudo apt update;
 sudo apt install --assume-yes --no-install-recommends yarn;
 sudo yarn global add @vue/cli;
-sudo yarn global add @quasar/cli;
 sudo yarn global add pm2;
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0;
 sudo apt-add-repository https://cli.github.com/packages;
