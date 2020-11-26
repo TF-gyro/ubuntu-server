@@ -1,4 +1,4 @@
 ### install core-server using the following script in command line
 ```
-installpath="/var/www/html"; installpath1=$(echo "$installpath" | sed 's/\//\\\//g'); read -p "Server Domain: " serverdomain; read -p "IP Address: " ipv4address; read -p "MySQL Username: " mysqluser; read -p "MySQL Password: " mysqlpass; sudo git clone https://github.com/wil-ldf-ire/origin-server-core.git $installpath/$serverdomain; sudo sed -i "s/xyz.wildfire.world/$serverdomain/g" $installpath/$serverdomain/server.sh; sudo sed -i "s/ipv4_address/$ipv4address/g" $installpath/$serverdomain/server.sh; sudo sed -i "s/mysql_root_user/$mysqluser/g" $installpath/$serverdomain/server.sh; sudo sed -i "s/mysql_root_pass/$mysqlpass/g" $installpath/$serverdomain/server.sh; sudo bash $installpath/$serverdomain/server.sh;
+sudo wget https://raw.githubusercontent.com/wil-ldf-ire/origin-server-core/master/install.sh; sudo bash ./install.sh; sudo rm ./install.sh;
 ```
