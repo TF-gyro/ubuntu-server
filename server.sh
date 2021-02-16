@@ -23,6 +23,7 @@ sudo cp /var/www/html/xyz.wildfire.world/fastcgi.conf /etc/apache2/mods-enabled/
 sudo systemctl reload apache2;
 sudo apt install --assume-yes zip;
 sudo apt install --assume-yes unzip;
+sudo apt install --assume-yes p7zip-full;
 sudo apt install --assume-yes nginx;
 sudo apt install --assume-yes build-essential;
 sudo apt install --assume-yes apache2-dev;
