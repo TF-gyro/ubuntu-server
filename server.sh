@@ -78,6 +78,7 @@ sudo apt update;
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list;
 sudo apt install --assume-yes --no-install-recommends yarn;
 sudo yarn global add pm2;
+sudo npm install -g ember-cli;
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0;
 sudo apt-add-repository https://cli.github.com/packages;
 sudo apt update;
