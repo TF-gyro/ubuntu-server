@@ -70,6 +70,7 @@ sudo /sbin/mkswap /var/swap.1;
 sudo /sbin/swapon /var/swap.1;
 sudo service php7.4-fpm restart;
 sudo apt-get install -y imagemagick;
+sudo apt install -y ffmpeg;
 curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -;
 sudo apt update;
 sudo apt-get install -y nodejs;
