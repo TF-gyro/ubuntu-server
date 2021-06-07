@@ -69,6 +69,7 @@ sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024;
 sudo /sbin/mkswap /var/swap.1;
 sudo /sbin/swapon /var/swap.1;
 sudo service php7.4-fpm restart;
+sudo apt-get install -y imagemagick;
 curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -;
 sudo apt update;
 sudo apt-get install -y nodejs;
