@@ -38,6 +38,8 @@ sudo cp /var/www/html/xyz.wildfire.world/rpaf.conf /etc/apache2/mods-available/r
 sudo sed -i 's/your_server_ip/ipv4_address/g' /etc/apache2/mods-available/rpaf.conf;
 sudo apt install --assume-yes curl;
 sudo apt install --assume-yes s3cmd;
+sudo apt install --assume-yes htop;
+sudo apt install --assume-yes atop;
 sudo apt install --assume-yes php-mysql;
 sudo apt install --assume-yes php-curl;
 sudo apt install --assume-yes php-cli;
