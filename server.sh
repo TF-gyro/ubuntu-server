@@ -63,6 +63,7 @@ sudo systemctl reload apache2;
 echo "ALTER USER 'mysql_root_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mysql_root_pass'; FLUSH PRIVILEGES; exit;" | sudo mysql;
 sudo apt install --assume-yes composer;
 sudo snap install --classic certbot;
+sudo apt install --assume-yes python3-certbot-nginx;
 sudo rm /var/www/html/xyz.wildfire.world -R;
 echo 'post_max_size = 1024M' | sudo tee -a /etc/php/7.4/fpm/php.ini;
 echo 'upload_max_filesize = 1024M' | sudo tee -a /etc/php/7.4/fpm/php.ini;
