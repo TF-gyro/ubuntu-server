@@ -8,3 +8,4 @@ sudo sed -i "s/mysql_root_user/$mysqluser/g" $installpath/server.sh;
 sudo sed -i "s/mysql_root_pass/$mysqlpass/g" $installpath/server.sh;
 sudo bash $installpath/server.sh;
 sudo rm $installpath/server.sh;
+sudo rm $installpath/install.sh;
