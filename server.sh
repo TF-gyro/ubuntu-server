@@ -1,5 +1,7 @@
 sudo apt update;
 sudo apt upgrade -y;
+sudo apt install lsb-release ca-certificates apt-transport-https software-properties-common -y;
+sudo add-apt-repository ppa:ondrej/php;
 sudo ufw allow OpenSSH;
 sudo ufw allow Postfix;
 sudo ufw allow 80;
