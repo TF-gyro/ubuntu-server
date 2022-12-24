@@ -49,4 +49,5 @@ sudo /bin/dd if=/dev/zero of=/var/swap.1 bs=1M count=1024;
 sudo /sbin/mkswap /var/swap.1;
 sudo /sbin/swapon /var/swap.1;
 sudo service php8.2-fpm restart;
+sudo apachectl stop;
 sudo apt-get update;
