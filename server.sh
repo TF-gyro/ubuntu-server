@@ -15,7 +15,6 @@ sudo apt-get install -y php8.2;
 sudo apt-get install -y php8.2-cli;
 sudo apt-get install -y php8.2-fpm;
 sudo apt-get install -y php8.2-mysql;
-sudo apt-get install -y php8.2-mysql;
 sudo apt-get install -y php8.2-curl;
 sudo apt-get install -y php8.2-mbstring;
 sudo apt-get install -y php8.2-mysql;
