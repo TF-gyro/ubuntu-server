@@ -35,6 +35,7 @@ apt-get install -y poppler-utils;
 apt-get install -y python3-pip;
 apt-get install -y imagemagick;
 apt-get install -y ffmpeg;
+systemctl disable --now apache2;
 systemctl reload nginx;
 echo "ALTER USER 'mysql_root_user'@'localhost' IDENTIFIED WITH mysql_native_password BY 'mysql_root_pass'; FLUSH PRIVILEGES; exit;" | mysql;
 curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php;
