@@ -10,6 +10,7 @@ ufw allow 3000;
 ufw allow 443;
 ufw allow 587;
 echo "y" | ufw enable;
+apt-get install -y git;
 apt-get install -y mysql-server;
 apt-get install -y php8.2;
 apt-get install -y php8.2-cli;
