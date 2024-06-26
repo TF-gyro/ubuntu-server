@@ -1,4 +1,4 @@
-installpath="~";
+installpath="~/ubuntu-server";
 read -p "MySQL Root Username: " mysqluser;
 echo "MySQL Root Password:";
 read -s mysqlpass;
