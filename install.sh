@@ -1,5 +1,4 @@
-installpath="/var/www/html";
-installpath1=$(echo "$installpath" | sed 's/\//\\\//g');
+installpath="~";
 read -p "MySQL Root Username: " mysqluser;
 echo "MySQL Root Password:";
 read -s mysqlpass;
