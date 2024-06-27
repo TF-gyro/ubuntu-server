@@ -9,7 +9,6 @@ ufw allow 3000;
 ufw allow 443;
 ufw allow 587;
 yes | ufw enable;
-DEBIAN_FRONTEND=noninteractive apt-get -yq install git;
 DEBIAN_FRONTEND=noninteractive apt-get -yq install mysql-server;
 DEBIAN_FRONTEND=noninteractive apt-get -yq install php;
 DEBIAN_FRONTEND=noninteractive apt-get -yq install php-cli;
