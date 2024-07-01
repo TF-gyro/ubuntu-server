@@ -61,7 +61,7 @@ $JUNCTION_PORT = $_GET['junction_port'];
 
 $DOMAIN_NAME = "localhost:{$APP_PORT}";
 
-$DATABASE_USER = "root";
+$DATABASE_USER = $_GET['db_user'];
 $DATABASE_NAME = to_snake_case($APP_NAME_OG, true);
 $DATABASE_PASS = random_generator(6);
 $DATABASE_HOST = "{$APP_NAME}-db";
@@ -108,6 +108,6 @@ $env_file = str_replace("\$DATABASE_PORT", $DATABASE_PORT, $env_file);
 
 file_put_contents("{$APP_PATH}/tribe/.env", $env_file);
 
-exec("docker-compose up -d");
+exec("docker compose up -d");
 
 exec("sleep 10; docker exec -i {$DATABASE_HOST} mysql -u{$DATABASE_USER} -p{$DATABASE_PASS} {$DATABASE_NAME} < {$APP_PATH}/tribe/install/db.sql");
