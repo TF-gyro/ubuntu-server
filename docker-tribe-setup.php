@@ -33,8 +33,6 @@ $DB_PASS= $_POST['db_pass'] ?? null;
 $DB_NAME= $_POST['db_name'] ?? null;
 $DB_HOST= $APP_UID."-db";
 
-$ENABLE_SSL= $_POST['enable_ssl'] ?? true;
-$ALLOW_CROSS_ORIGIN= $_POST['allow_cross_origin'] ?? false;
 $WEB_BARE_URL= $_POST['web_bare_url'] ?? null;
 $WEB_URL= $_POST['web_url'] ?? null;
 
@@ -78,9 +76,6 @@ file_put_contents("{$APP_PATH}/docker-compose.yml", $docker_compose);
 // update .env
 copy("{$APP_PATH}/tribe/.env.sample", "{$APP_PATH}/tribe/.env");
 $env_file = file_get_contents("{$APP_PATH}/tribe/.env");
-$env_file = str_replace("\$ALLOW_CROSS_ORIGIN", $ALLOW_CROSS_ORIGIN, $env_file);
-$env_file = str_replace("\$ENABLE_SSL", $ENABLE_SSL, $env_file);
-
 $env_file = str_replace("\$JUNCTION_PASS", $JUNCTION_PASS, $env_file);
 $env_file = str_replace("\$JUNCTION_URL", $JUNCTION_URL, $env_file);
 
@@ -102,6 +97,8 @@ $pma_config = file_get_contents("{$APP_PATH}/tribe/config.inc.php");
 $env_file = str_replace("\$DB_HOST", $DB_HOST, $pma_config);
 
 file_put_contents("{$APP_PATH}/tribe/config.inc.php", $pma_config);
+
+exec("chown -R www-data: $APP_PATH");
 
 exec("docker compose up -d");
 
