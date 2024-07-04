@@ -14,10 +14,10 @@ echo "    server_name  tribe.$slug.junction.express;" >> /etc/nginx/sites-availa
 echo "" >> /etc/nginx/sites-available/$slug.junction.express
 echo "    location / {" >> /etc/nginx/sites-available/$slug.junction.express
 echo "        proxy_pass http://localhost:$tport/;" >> /etc/nginx/sites-available/$slug.junction.express
-echo "        proxy_set_header Host $host;" >> /etc/nginx/sites-available/$slug.junction.express
-echo "        proxy_set_header X-Real-IP $remote_addr;" >> /etc/nginx/sites-available/$slug.junction.express
-echo "        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;" >> /etc/nginx/sites-available/$slug.junction.express
-echo "        proxy_set_header X-Forwarded-Proto $scheme;" >> /etc/nginx/sites-available/$slug.junction.express
+echo "        proxy_set_header Host \$host;" >> /etc/nginx/sites-available/$slug.junction.express
+echo "        proxy_set_header X-Real-IP \$remote_addr;" >> /etc/nginx/sites-available/$slug.junction.express
+echo "        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;" >> /etc/nginx/sites-available/$slug.junction.express
+echo "        proxy_set_header X-Forwarded-Proto \$scheme;" >> /etc/nginx/sites-available/$slug.junction.express
 echo "    }" >> /etc/nginx/sites-available/$slug.junction.express
 echo "}" >> /etc/nginx/sites-available/$slug.junction.express
 echo "" >> /etc/nginx/sites-available/$slug.junction.express
@@ -28,10 +28,10 @@ echo "    server_name  $slug.junction.express;" >> /etc/nginx/sites-available/$s
 echo "" >> /etc/nginx/sites-available/$slug.junction.express
 echo "    location / {" >> /etc/nginx/sites-available/$slug.junction.express
 echo "        proxy_pass http://localhost:$jport/;" >> /etc/nginx/sites-available/$slug.junction.express
-echo "        proxy_set_header Host $host;" >> /etc/nginx/sites-available/$slug.junction.express
-echo "        proxy_set_header X-Real-IP $remote_addr;" >> /etc/nginx/sites-available/$slug.junction.express
-echo "        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;" >> /etc/nginx/sites-available/$slug.junction.express
-echo "        proxy_set_header X-Forwarded-Proto $scheme;" >> /etc/nginx/sites-available/$slug.junction.express
+echo "        proxy_set_header Host \$host;" >> /etc/nginx/sites-available/$slug.junction.express
+echo "        proxy_set_header X-Real-IP \$remote_addr;" >> /etc/nginx/sites-available/$slug.junction.express
+echo "        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;" >> /etc/nginx/sites-available/$slug.junction.express
+echo "        proxy_set_header X-Forwarded-Proto \$scheme;" >> /etc/nginx/sites-available/$slug.junction.express
 echo "    }" >> /etc/nginx/sites-available/$slug.junction.express
 echo "}" >> /etc/nginx/sites-available/$slug.junction.express
 
