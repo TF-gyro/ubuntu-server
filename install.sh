@@ -3,7 +3,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get -yq update
 apt-get -yq upgrade
 
-apt-get -yq install swapspace lsb-release ca-certificates curl php php-cgi apt-transport-https software-properties-common nginx python3-pip python3-certbot-nginx net-tools zip unzip p7zip-full build-essential curl s3cmd htop imagemagick ffmpeg poppler-utils
+apt-get -yq install swapspace lsb-release ca-certificates curl php php-cgi php-fpm apt-transport-https software-properties-common nginx python3-pip python3-certbot-nginx net-tools zip unzip p7zip-full build-essential curl s3cmd htop imagemagick ffmpeg poppler-utils
 
 ufw allow OpenSSH
 ufw allow Postfix
@@ -24,3 +24,6 @@ echo \
 apt-get update
 apt-get -yq install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 docker pull tribeframework/tribe:latest
+
+chown www-data: /var/www/html -R
+chmod 755 /var/www/html
