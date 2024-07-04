@@ -1,15 +1,18 @@
-#change the following line manually and run "bash install.sh"
+# change the following line manually and run "bash install.sh"
 servername="j0.wildfire.world"
 
-#no changes after this line
-#--------
+# use following line in "incrontab -e"
+# /var/www/html/docker-tribe-slugs.txt  IN_MODIFY bash /var/www/html/nginx-tribe-setup.sh
+
+# no changes after this line
+# --------
 
 export DEBIAN_FRONTEND=noninteractive
 
 apt-get -yq update
 apt-get -yq upgrade
 
-apt-get -yq install swapspace lsb-release ca-certificates curl php php-cgi php-fpm apt-transport-https software-properties-common nginx python3-pip python3-certbot-nginx net-tools zip unzip p7zip-full build-essential curl s3cmd htop imagemagick ffmpeg poppler-utils inotify-tools
+apt-get -yq install swapspace lsb-release ca-certificates curl php php-cgi php-fpm apt-transport-https software-properties-common nginx python3-pip python3-certbot-nginx net-tools zip unzip p7zip-full build-essential curl s3cmd htop imagemagick ffmpeg poppler-utils inotify-tools incron
 
 ufw allow OpenSSH
 ufw allow Postfix
@@ -34,6 +37,9 @@ docker pull tribeframework/tribe:latest
 mkdir /var/www/html/logs;
 chown www-data: /var/www/html -R
 chmod 755 /var/www/html
+
+echo "root" >> /etc/incron.allow
+systemctl start incron.service
 
 rm /etc/nginx/sites-available/default
 rm /etc/nginx/sites-enabled/default
