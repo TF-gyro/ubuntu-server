@@ -70,7 +70,7 @@ $docker_compose = str_replace("\$APP_UID", $APP_NAME, $docker_compose);
 $docker_compose = str_replace("\$DB_USER", $DB_USER, $docker_compose);
 $docker_compose = str_replace("\$DB_NAME", $DB_NAME, $docker_compose);
 $docker_compose = str_replace("\$DB_PASS", $DB_PASS, $docker_compose);
-$docker_compose = str_replace("\$APP_PORT", $APP_PORT, $docker_compose);
+$docker_compose = str_replace("\$TRIBE_PORT", $TRIBE_PORT, $docker_compose);
 $docker_compose = str_replace("\$JUNCTION_PORT", $JUNCTION_PORT, $docker_compose);
 
 file_put_contents("{$APP_PATH}/docker-compose.yml", $docker_compose);
