@@ -1,42 +1,47 @@
 <?php
 /**
  * REQUIRED OPTIONS:
- * app_name
- * app_port
- * db_port
- * junction_port
+ * app_name: webapp name
+ * app_uid: unique name of app
+ * tribe_port: port to be attached to tribe's docker
+ * junction_port: port to be attached to junction's docker
+ * db_user: non-root user for database
+ * db_pass: mysqldb password
+ * db_name: mysqldb name
+ * junction_pass: password for junction
+ * enable_ssl: bool true/false
+ * allow_cross_origin: bool true/false
+ * web_bare_url: domain name without http/s
+ * web_url: http/s based domain name
+ * junction_url: http/s based url for junction app
  */
 
-function random_generator(int $size) {
-    return bin2hex(random_bytes($size));
+if (!isset($_SERVER['HTTP_HOST'])) {
+    parse_str($argv[1], $_POST);
 }
 
-function to_snake_case(string $data, bool $lowercase = false) {
-    $data = str_replace(" ", "_", $data);
-    $data = str_replace("-", "_", $data);
+$APP_NAME= $_POST['app_name'] ?? null;
+$APP_UID= $_POST['app_uid'] ?? null;
+$TRIBE_PORT= $_POST['tribe_port'] ?? null;
 
-    if ($lowercase) {
-        $data = strtolower($data);
-    }
+$JUNCTION_PORT= $_POST['junction_port'] ?? null;
+$JUNCTION_PASS= $_POST['junction_pass'] ?? null;
+$JUNCTION_URL= $_POST['junction_url'] ?? null;
 
-    return $data;
-}
+$DB_USER= $_POST['db_user'] ?? null;
+$DB_PASS= $_POST['db_pass'] ?? null;
+$DB_NAME= $_POST['db_name'] ?? null;
+$DB_HOST= $APP_UID."-db";
 
-function find_free_port($start_port) {
-    exec("netstat -tnlp | grep ':{$start_port}' | wc -l", $status);
+$ENABLE_SSL= $_POST['enable_ssl'] ?? true;
+$ALLOW_CROSS_ORIGIN= $_POST['allow_cross_origin'] ?? false;
+$WEB_BARE_URL= $_POST['web_bare_url'] ?? null;
+$WEB_URL= $_POST['web_url'] ?? null;
 
-    if ($status[0] == 0) {
-        return $start_port;
-    }
+$TRIBE_API_SECRET_KEY= $_POST['tribe_secret'] ?? null;
 
-    $start_port += 1;
-    return find_free_port($start_port);
-}
-
-$APP_NAME_OG = $_GET['app_name'] ?? null;
-
-if (!$APP_NAME_OG) {
-    die("'app_name' is required");
+if (!$APP_UID) {
+    die("'app_uid' is required");
 }
 
 $BASE_DIR = "/mnt/junctions";
@@ -47,35 +52,8 @@ if (!is_dir($BASE_DIR)) {
 
 chdir($BASE_DIR);
 
-$bytes = random_generator(4);
-
-// $APP_NAME_OG = "hello_world-e735fff8";
-
-$APP_NAME = to_snake_case($APP_NAME_OG);
-$APP_PATH = "{$BASE_DIR}/{$APP_NAME}-{$bytes}";
-// $APP_PATH = "/var/www/junctions/hello_world-e735fff8";
-
-// $APP_PORT = find_free_port(8080);
-$APP_PORT = $_GET['app_port'];
-$JUNCTION_PORT = $_GET['junction_port'];
-
-$DOMAIN_NAME = "localhost:{$APP_PORT}";
-
-$DATABASE_USER = $_GET['db_user'];
-$DATABASE_NAME = to_snake_case($APP_NAME_OG, true);
-$DATABASE_PASS = random_generator(6);
-$DATABASE_HOST = "{$APP_NAME}-db";
-$DATABASE_PORT = 3306;
-// $DOCKER_DB_PORT = find_free_port(3307);
-$DOCKER_DB_PORT = $_GET['db_port'];
-
 try {
-    exec("git clone https://github.com/tribe-framework/docker-tribe-template.git {$APP_NAME}-{$bytes}");
-
-    // $phar = new PharData(TRIBE_ROOT . '/tribe-template.tgz');
-    // $phar->extractTo($BASE_DIR);
-
-    // rename("$BASE_DIR/tribe-template", $APP_PATH);
+    exec("git clone https://github.com/tribe-framework/docker-tribe-template.git {$APP_UID}");
 } catch (\Exception $e) {
     echo "<pre style='color: red;'>";
     var_dump($e);
@@ -83,31 +61,48 @@ try {
     die();
 }
 
+$APP_PATH = "{$BASE_DIR}/{$APP_UID}";
 chdir($APP_PATH);
 
 // update docker-compose variables
 $docker_compose = file_get_contents("{$APP_PATH}/docker-compose.yml");
-$docker_compose = str_replace("\$APP_NAME", $APP_NAME, $docker_compose);
-$docker_compose = str_replace("\$DATABASE_NAME", $DATABASE_NAME, $docker_compose);
-$docker_compose = str_replace("\$DATABASE_PASS", $DATABASE_PASS, $docker_compose);
+$docker_compose = str_replace("\$APP_UID", $APP_NAME, $docker_compose);
+$docker_compose = str_replace("\$DB_USER", $DB_USER, $docker_compose);
+$docker_compose = str_replace("\$DB_NAME", $DB_NAME, $docker_compose);
+$docker_compose = str_replace("\$DB_PASS", $DB_PASS, $docker_compose);
 $docker_compose = str_replace("\$APP_PORT", $APP_PORT, $docker_compose);
 $docker_compose = str_replace("\$JUNCTION_PORT", $JUNCTION_PORT, $docker_compose);
-$docker_compose = str_replace("\$DOCKER_DB_PORT", $DOCKER_DB_PORT, $docker_compose);
 
 file_put_contents("{$APP_PATH}/docker-compose.yml", $docker_compose);
 
 // update .env
 copy("{$APP_PATH}/tribe/.env.sample", "{$APP_PATH}/tribe/.env");
 $env_file = file_get_contents("{$APP_PATH}/tribe/.env");
-$env_file = str_replace("\$DOMAIN_NAME", $DOMAIN_NAME, $env_file);
-$env_file = str_replace("\$DATABASE_NAME", $DATABASE_NAME, $env_file);
-$env_file = str_replace("\$DATABASE_USER", $DATABASE_USER, $env_file);
-$env_file = str_replace("\$DATABASE_PASS", $DATABASE_PASS, $env_file);
-$env_file = str_replace("\$DATABASE_HOST", $DATABASE_HOST, $env_file);
-$env_file = str_replace("\$DATABASE_PORT", $DATABASE_PORT, $env_file);
+$env_file = str_replace("\$ALLOW_CROSS_ORIGIN", $ALLOW_CROSS_ORIGIN, $env_file);
+$env_file = str_replace("\$ENABLE_SSL", $ENABLE_SSL, $env_file);
+
+$env_file = str_replace("\$JUNCTION_PASS", $JUNCTION_PASS, $env_file);
+$env_file = str_replace("\$JUNCTION_URL", $JUNCTION_URL, $env_file);
+
+$env_file = str_replace("\$APP_NAME", $APP_NAME, $env_file);
+$env_file = str_replace("\$WEB_BARE_URL", $WEB_BARE_URL, $env_file);
+$env_file = str_replace("\$WEB_URL", $WEB_URL, $env_file);
+$env_file = str_replace("\$DOCKER_EXTERNAL_TRIBE_URL", "localhost:$TRIBE_PORT", $env_file);
+$env_file = str_replace("\$DOCKER_EXTERNAL_JUNCTION_URL", "localhost:$JUNCTION_PORT", $env_file);
+$env_file = str_replace("\$TRIBE_API_SECRET_KEY", $TRIBE_API_SECRET_KEY, $env_file);
+
+$env_file = str_replace("\$DB_NAME", $DB_NAME, $env_file);
+$env_file = str_replace("\$DB_USER", $DB_USER, $env_file);
+$env_file = str_replace("\$DB_PASS", $DB_PASS, $env_file);
+$env_file = str_replace("\$DB_HOST", $DB_HOST, $env_file);
 
 file_put_contents("{$APP_PATH}/tribe/.env", $env_file);
 
+$pma_config = file_get_contents("{$APP_PATH}/tribe/config.inc.php");
+$env_file = str_replace("\$DB_HOST", $DB_HOST, $pma_config);
+
+file_put_contents("{$APP_PATH}/tribe/config.inc.php", $pma_config);
+
 exec("docker compose up -d");
 
-exec("sleep 10; docker exec -i {$DATABASE_HOST} mysql -u{$DATABASE_USER} -p{$DATABASE_PASS} {$DATABASE_NAME} < {$APP_PATH}/tribe/install/db.sql");
+exec("sleep 10; docker exec -i {$DB_HOST} mysql -u{$DB_USER} -p{$DB_PASS} {$DB_NAME} < {$APP_PATH}/tribe/install/db.sql");
