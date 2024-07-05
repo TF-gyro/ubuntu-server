@@ -36,7 +36,7 @@ nginx -s reload;
 
 php /var/www/html/docker-tribe-setup.php "$vars"
 
-sleep 15
+sleep 30
 
-yes | certbot --agree-tos --no-eff-email --email tech@wildfire.world --nginx -d xb5k88upx.junction.express -d tribe.xb5k88upx.junction.express;
+/usr/bin/certbot --agree-tos --no-eff-email --email tech@wildfire.world --nginx -d $slug.junction.express -d tribe.$slug.junction.express;
 nginx -s reload;
