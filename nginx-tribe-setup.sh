@@ -40,3 +40,5 @@ sleep 30
 
 /usr/bin/certbot --agree-tos --no-eff-email --email tech@wildfire.world --nginx -d $slug.junction.express -d tribe.$slug.junction.express;
 nginx -s reload;
+
+curl "https://junction.express/custom/cloudflare/dns/setup-finished.php?slug=$slug" >/dev/null 2>&1
