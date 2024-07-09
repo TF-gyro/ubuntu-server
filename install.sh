@@ -2,7 +2,9 @@
 servername="j0.wildfire.world"
 
 # use following line in "incrontab -e"
+# chown www-data: for both the .txt files in /var/www/html/
 # /var/www/html/docker-tribe-slugs.txt  IN_MODIFY bash /var/www/html/nginx-tribe-setup.sh
+# /var/www/html/docker-tribe-destroy-slugs.txt  IN_MODIFY bash /var/www/html/nginx-tribe-destroy.sh
 
 # no changes after this line
 # --------
