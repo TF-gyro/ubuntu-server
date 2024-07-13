@@ -28,7 +28,6 @@ $TRIBE_PORT= $_POST['tribe_port'] ?? null;
 $JUNCTION_PORT= $_POST['junction_port'] ?? null;
 $JUNCTION_PASS= $_POST['junction_pass'] ?? null;
 $JUNCTION_URL= $_POST['junction_url'] ?? null;
-$JUNCTION_SLUG= $_POST['junction_slug'] ?? null;
 
 $DB_USER= $_POST['db_user'] ?? null;
 $DB_PASS= $_POST['db_pass'] ?? null;
@@ -80,7 +79,7 @@ copy("{$APP_PATH}/tribe/.env.sample", "{$APP_PATH}/tribe/.env");
 $env_file = file_get_contents("{$APP_PATH}/tribe/.env");
 $env_file = str_replace("\$JUNCTION_PASS", $JUNCTION_PASS, $env_file);
 $env_file = str_replace("\$JUNCTION_URL", $JUNCTION_URL, $env_file);
-$env_file = str_replace("\$JUNCTION_SLUG", $JUNCTION_SLUG, $env_file);
+$env_file = str_replace("\$APP_UID", $APP_UID, $env_file);
 
 $env_file = str_replace("\$APP_NAME", $APP_NAME, $env_file);
 $env_file = str_replace("\$WEB_BARE_URL", $WEB_BARE_URL, $env_file);
