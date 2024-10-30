@@ -1,4 +1,7 @@
 <?php
+/**
+ * This script prepares all files to initiate a docker junction instance
+ */
 $_POST = file_get_contents("php://input");
 parse_str($_POST, $or);
 shell_exec("echo \"$_POST\" >> /var/www/html/logs/".$or['app_uid']."-tribe-init.txt");

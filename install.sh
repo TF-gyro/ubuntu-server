@@ -6,10 +6,25 @@ servername="j0.wildfire.world"
 
 export DEBIAN_FRONTEND=noninteractive
 
+# Remove packages that can conflict with docker
+apt-get remove docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc apache2
+
 apt-get -yq update
 apt-get -yq upgrade
 
-apt-get -yq install swapspace lsb-release ca-certificates curl php php-cgi php-fpm apt-transport-https software-properties-common nginx python3-pip python3-certbot-nginx net-tools zip unzip p7zip-full build-essential curl s3cmd htop imagemagick ffmpeg poppler-utils inotify-tools incron
+# Start setting up the system
+apt-get -yq install swapspace lsb-release ca-certificates curl php php-cgi php-fpm apt-transport-https software-properties-common nginx net-tools zip unzip p7zip-full build-essential curl s3cmd htop imagemagick ffmpeg poppler-utils inotify-tools incron zsh tmux python3 python3-venv libaugeas0
+
+## CERTBOT
+# Setup python venv
+python3 -m venv /opt/certbot/
+/opt/certbot/bin/pip install --upgrade pip
+
+# Install certbot
+/opt/certbot/bin/pip install certbot certbot-nginx
+
+# prepare certbot
+sudo ln -s /opt/certbot/bin/certbot /usr/bin/certbot
 
 ufw allow OpenSSH
 ufw allow Postfix
@@ -20,6 +35,7 @@ ufw allow 443
 ufw allow 587
 yes | ufw enable
 
+# setting up docker
 install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 chmod a+r /etc/apt/keyrings/docker.asc
@@ -41,41 +57,11 @@ systemctl start incron.service
 rm /etc/nginx/sites-available/default
 rm /etc/nginx/sites-enabled/default
 
-# replace the code below with handling of nginx/server.conf
-echo "server {" >> /etc/nginx/sites-available/$servername
-echo "    listen 80;" >> /etc/nginx/sites-available/$servername
-echo "" >> /etc/nginx/sites-available/$servername
-echo "    server_name $servername;" >> /etc/nginx/sites-available/$servername
-echo "" >> /etc/nginx/sites-available/$servername
-echo "    root /var/www/html;" >> /etc/nginx/sites-available/$servername
-echo "" >> /etc/nginx/sites-available/$servername
-echo "    access_log  /var/www/html/logs/access.log;" >> /etc/nginx/sites-available/$servername
-echo "    error_log  /var/www/html/logs/error.log;" >> /etc/nginx/sites-available/$servername
-echo "" >> /etc/nginx/sites-available/$servername
-echo "    index index.html index.htm index.php;" >> /etc/nginx/sites-available/$servername
-echo "" >> /etc/nginx/sites-available/$servername
-echo "    location ~ /\.(?!well-known).* {" >> /etc/nginx/sites-available/$servername
-echo "        deny all;" >> /etc/nginx/sites-available/$servername
-echo "        access_log off;" >> /etc/nginx/sites-available/$servername
-echo "        log_not_found off;" >> /etc/nginx/sites-available/$servername
-echo "    }" >> /etc/nginx/sites-available/$servername
-echo "" >> /etc/nginx/sites-available/$servername
-echo "    location / {" >> /etc/nginx/sites-available/$servername
-echo "        include /etc/nginx/mime.types;" >> /etc/nginx/sites-available/$servername
-echo "        try_files $uri $uri.html $uri/ @extensionless-php;" >> /etc/nginx/sites-available/$servername
-echo "    }" >> /etc/nginx/sites-available/$servername
-echo "" >> /etc/nginx/sites-available/$servername
-echo "    location @extensionless-php {" >> /etc/nginx/sites-available/$servername
-echo "        rewrite ^(.*)$ $1.php last;" >> /etc/nginx/sites-available/$servername
-echo "    }" >> /etc/nginx/sites-available/$servername
-echo "" >> /etc/nginx/sites-available/$servername
-echo "    location ~ \.php$ {" >> /etc/nginx/sites-available/$servername
-echo "        include snippets/fastcgi-php.conf;" >> /etc/nginx/sites-available/$servername
-echo "        fastcgi_pass unix:/var/run/php/php-fpm.sock;" >> /etc/nginx/sites-available/$servername
-echo "    }" >> /etc/nginx/sites-available/$servername
-echo "}" >> /etc/nginx/sites-available/$servername
+cp ./nginx/default.conf /etc/nginx/sites-available/$servername
+sed -i "s/%servername%/${servername}/g" /etc/nginx/sites-available/$servername
 
 ln -s /etc/nginx/sites-available/$servername /etc/nginx/sites-enabled/$servername;
-nginx -s reload;
+nginx -t && nginx -s reload;
+
 certbot --agree-tos --no-eff-email --email tech@wildfire.world --nginx -d $servername;
-nginx -s reload;
+nginx -t && nginx -s reload;

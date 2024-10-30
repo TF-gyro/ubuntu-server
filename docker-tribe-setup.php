@@ -104,4 +104,4 @@ exec("chown -R www-data: $APP_PATH");
 
 exec("docker compose up -d");
 
-exec("sleep 30; docker exec -i {$DB_HOST} mysql -u{$DB_USER} -p{$DB_PASS} {$DB_NAME} < {$APP_PATH}/tribe/install/db.sql");
+exec("sleep 30; docker exec -i {$DB_HOST} mysql -u{$DB_USER} -p{$DB_PASS} {$DB_NAME} < {$APP_PATH}/tribe/install/db.sql; while [ $? -eq 1 ]; do docker exec -i {$DB_HOST} mysql -u{$DB_USER} -p{$DB_PASS} {$DB_NAME} < {$APP_PATH}/tribe/install/db.sql; sleep 2; done;");
