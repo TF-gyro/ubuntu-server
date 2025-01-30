@@ -3,6 +3,7 @@ vars=$( awk 'END { print }' /var/www/html/logs/$slug-tribe-init.txt )
 tport=$( awk 'END { print }' /var/www/html/logs/$slug-tribe-port.txt )
 jport=$( awk 'END { print }' /var/www/html/logs/$slug-junction-port.txt )
 
+# replace below code with handling nginx/tribe_server.conf
 echo "server {" >> /etc/nginx/sites-available/$slug.junction.express
 echo "    server_name  $slug.tribe.junction.express;" >> /etc/nginx/sites-available/$slug.junction.express
 echo "" >> /etc/nginx/sites-available/$slug.junction.express

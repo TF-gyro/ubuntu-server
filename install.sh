@@ -41,6 +41,7 @@ systemctl start incron.service
 rm /etc/nginx/sites-available/default
 rm /etc/nginx/sites-enabled/default
 
+# replace the code below with handling of nginx/server.conf
 echo "server {" >> /etc/nginx/sites-available/$servername
 echo "    listen 80;" >> /etc/nginx/sites-available/$servername
 echo "" >> /etc/nginx/sites-available/$servername
