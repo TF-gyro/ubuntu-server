@@ -93,15 +93,17 @@ $env_file = str_replace("\$DB_USER", $DB_USER, $env_file);
 $env_file = str_replace("\$DB_PASS", $DB_PASS, $env_file);
 $env_file = str_replace("\$DB_HOST", $DB_HOST, $env_file);
 
-file_put_contents("{$APP_PATH}/tribe/.env", $env_file);
+file_put_contents("{$APP_PATH}/tribe/.env", $env_file); // write changes to .env
 
+// update PMA configuration
 $pma_config = file_get_contents("{$APP_PATH}/tribe/config.inc.php");
-$env_file = str_replace("\$DB_HOST", $DB_HOST, $pma_config);
+$pma_config = str_replace("\$DB_HOST", $DB_HOST, $pma_config);
 
-file_put_contents("{$APP_PATH}/tribe/config.inc.php", $pma_config);
+file_put_contents("{$APP_PATH}/tribe/config.inc.php", $pma_config); // write changes to pma_config
 
-exec("chown -R www-data: $APP_PATH");
+exec("chown -R www-data: $APP_PATH"); // transfer ownership of app to www-data
 
-exec("docker compose up -d");
+exec("docker compose up -d"); // start docker app
 
+// wait for process to start before importing and applying database structure
 exec("sleep 30; docker exec -i {$DB_HOST} mysql -u{$DB_USER} -p{$DB_PASS} {$DB_NAME} < {$APP_PATH}/tribe/install/db.sql; while [ $? -eq 1 ]; do docker exec -i {$DB_HOST} mysql -u{$DB_USER} -p{$DB_PASS} {$DB_NAME} < {$APP_PATH}/tribe/install/db.sql; sleep 2; done;");
