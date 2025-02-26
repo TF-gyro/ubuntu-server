@@ -1,0 +1,14 @@
+[Unit]
+Description=Docker Worker Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/php /path/to/worker.php
+Restart=always
+User=your-user
+WorkingDirectory=/path/to/your/project
+StandardOutput=append:/var/log/docker-worker.log
+StandardError=append:/var/log/docker-worker-error.log
+
+[Install]
+WantedBy=multi-user.target

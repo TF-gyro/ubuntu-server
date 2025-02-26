@@ -1,0 +1,23 @@
+{
+    "name": "gyro/gyro",
+    "description": "Gyro spawner",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Gyro\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Apurv Jyotirmay",
+            "email": "mail@jyotirmay.dev"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "predis/predis": "^2.3",
+        "tribe/api": "^1.0",
+        "vlucas/phpdotenv": "^5.6"
+    }
+}
