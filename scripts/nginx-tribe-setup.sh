@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# This script needs to be run as sudo;
+# Make sure you have correct permissions to access restricted directories
+
 # Function to display usage
 usage() {
     echo "Usage: $0 [--jport=PORT] [--tport=PORT] [--slug=SLUG] [--root=working-dir-root] [--ssl-dir=ssl-dir-path]"
