@@ -2,7 +2,9 @@
 namespace Gyro\Cloudflare;
 
 /**
- * Represents a batch of DNS record operations
+ * Represents a batch of DNS record operations. 
+ * Cloudflare batch docs: https://developers.cloudflare.com/dns/manage-dns-records/how-to/batch-record-changes/.
+ * Cloudflare batchAPI docs: https://developers.cloudflare.com/api/resources/dns/subresources/records/methods/batch/ 
  */
 class Batch
 {

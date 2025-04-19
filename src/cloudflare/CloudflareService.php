@@ -3,7 +3,7 @@ namespace Gyro\Cloudflare;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
-
+// TODO: Test for all CRUD operations.
 /**
  * Service for interacting with Cloudflare API
  */
@@ -204,6 +204,8 @@ class CloudflareService
      * @return array Results of batch operations
      * @throws \Exception If the API request fails
      */
+
+     // TODO: Atomic operations not supported yet by Cloudflare API. Need to implement a way to handle this.
     public function executeBatch(string $zoneId, Batch $batch): array
     {
         if (!$batch->hasOperations()) {
