@@ -9,7 +9,12 @@ class Batch
     /**
      * @var array List of operations to perform
      */
-    private $operations = [];
+    private $operations = [
+        'deletes' => [],
+        'patches' => [],
+        'puts' => [],
+        'posts' => []
+    ];
 
     /**
      * Create a new batch
@@ -26,12 +31,7 @@ class Batch
      */
     public function addCreate(Record $record): self
     {
-        $this->operations[] = [
-            'method' => 'POST',
-            'path' => '/dns_records',
-            'data' => $record->toApiArray()
-        ];
-
+        $this->operations['posts'][] = $record->toApiArray();
         return $this;
     }
 
@@ -44,12 +44,9 @@ class Batch
      */
     public function addUpdate(string $recordId, Record $record): self
     {
-        $this->operations[] = [
-            'method' => 'PUT',
-            'path' => '/dns_records/' . $recordId,
-            'data' => $record->toApiArray()
-        ];
-
+        $data = $record->toApiArray();
+        $data['id'] = $recordId;
+        $this->operations['patches'][] = $data;
         return $this;
     }
 
@@ -61,11 +58,7 @@ class Batch
      */
     public function addDelete(string $recordId): self
     {
-        $this->operations[] = [
-            'method' => 'DELETE',
-            'path' => '/dns_records/' . $recordId
-        ];
-
+        $this->operations['deletes'][] = ['id' => $recordId];
         return $this;
     }
 
@@ -76,7 +69,13 @@ class Batch
      */
     public function getOperationsArray(): array
     {
-        return $this->operations;
+        $operations = [];
+        foreach ($this->operations as $method => $items) {
+            if (!empty($items)) {
+                $operations[$method] = $items;
+            }
+        }
+        return $operations;
     }
 
     /**
@@ -86,7 +85,12 @@ class Batch
      */
     public function hasOperations(): bool
     {
-        return !empty($this->operations);
+        foreach ($this->operations as $items) {
+            if (!empty($items)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -96,7 +100,11 @@ class Batch
      */
     public function getOperationCount(): int
     {
-        return count($this->operations);
+        $count = 0;
+        foreach ($this->operations as $items) {
+            $count += count($items);
+        }
+        return $count;
     }
 
     /**
@@ -106,7 +114,12 @@ class Batch
      */
     public function clear(): self
     {
-        $this->operations = [];
+        $this->operations = [
+            'deletes' => [],
+            'patches' => [],
+            'puts' => [],
+            'posts' => []
+        ];
         return $this;
     }
 }

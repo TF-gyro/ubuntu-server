@@ -12,3 +12,4 @@ sftp-config.json
 *.pem
 logs
 /.docker
+.cursorignore

@@ -25,11 +25,6 @@ class CloudflareService
     private $email;
 
     /**
-     * @var string Cloudflare API base URL
-     */
-    private $baseUrl = 'https://api.cloudflare.com/client/v4';
-
-    /**
      * @var Client HTTP client for API requests
      */
     private $httpClient;
@@ -54,7 +49,7 @@ class CloudflareService
         }
 
         $this->httpClient = new Client([
-            'base_uri' => $this->baseUrl,
+            'base_uri' => 'https://api.cloudflare.com/client/v4/',
             'timeout' => 30.0,
         ]);
     }
@@ -215,28 +210,7 @@ class CloudflareService
             return [];
         }
 
-        $results = [];
-        foreach ($batch->getOperationsArray() as $operation) {
-            $endpoint = "/zones/{$zoneId}" . $operation['path'];
-            $method = $operation['method'];
-            $data = $operation['data'] ?? null;
-
-            try {
-                $result = $this->makeRequest($method, $endpoint, [], $data);
-                $results[] = [
-                    'success' => true,
-                    'operation' => $operation,
-                    'result' => $result
-                ];
-            } catch (\Exception $e) {
-                $results[] = [
-                    'success' => false,
-                    'operation' => $operation,
-                    'error' => $e->getMessage()
-                ];
-            }
-        }
-
-        return $results;
+        $endpoint = "zones/{$zoneId}/dns_records/batch";
+        return $this->makeRequest('POST', $endpoint, [], $batch->getOperationsArray());
     }
 }
