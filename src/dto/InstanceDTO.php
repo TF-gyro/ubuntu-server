@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Dto;
+namespace Gyro\Dto;
 
 /**
  * Data Transfer Object (DTO) for Instance information.
