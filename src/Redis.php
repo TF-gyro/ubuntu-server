@@ -1,6 +1,10 @@
 <?php
 
 namespace Gyro;
+// Ensure Redis client is installed before using it
+if (!class_exists('Predis\Client')) {
+    die("Predis client not found. Please install predis/predis via composer.");
+}
 
 use Predis\Client;
 use Exception;
@@ -32,10 +36,8 @@ class Redis
             ]);
 
             // Authenticate if password is set
-            if (!empty($_ENV['REDIS_PASSWORD'])) {
-                if (!$this->client->auth($_ENV['REDIS_PASSWORD'])) {
-                    throw new Exception('Redis authentication failed');
-                }
+            if (!empty($_ENV['REDIS_PASSWORD']) && !$this->client->auth($_ENV['REDIS_PASSWORD'])) {
+                throw new Exception('Redis authentication failed');
             }
         } catch (Exception $e) {
             throw new Exception("Redis connection failed: " . $e->getMessage());
