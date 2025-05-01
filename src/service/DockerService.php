@@ -2,6 +2,8 @@
 // require 'vendor/autoload.php';
 namespace Gyro\Service;
 
+use Gyro\Dto\InstanceDTO;
+
 // Ensure Redis client is installed before using it
 if (!class_exists('Predis\Client')) {
     die("Predis client not found. Please install predis/predis via composer.");
@@ -17,22 +19,22 @@ class DockerService {
         $this->db = $db;
     }
 
-    public function spawnService(string $title, string $app_name, string $app_uid, string $secret, string $domain, array $ports) {
+    public function spawnService(InstanceDTO $instance) {
         // Validate image name to prevent invalid Docker commands
-        if (!preg_match('/^[a-zA-Z0-9-_]+(:[a-zA-Z0-9._-]+)?$/', $app_name)) {
+        if (!preg_match('/^[a-zA-Z0-9-_]+(:[a-zA-Z0-9._-]+)?$/', $instance->getAppName())) {
             return ['error' => 'Invalid Docker image name.'];
         }
 
         $jobId = uniqid();
         $spawnJob = [
+            'title' => $instance->getAppName(),
             'job_id' => $jobId,
-            'title' => $title,
-            'app_name' => $app_name,
-            'app_uid' => $app_uid,
-            'secret' => $secret,
-            'domain' => $domain,
-            'tribe_port' => $ports['tribe_port'],
-            'junction_port' => $ports['junction_port']
+            'app_name' => $instance->getAppName(),
+            'app_uid' => $instance->getAppUid(),
+            'secret' => $instance->getSecret(),
+            'domain' => $instance->getDomain(),
+            'tribe_port' => $instance->getTribePort(),
+            'junction_port' => $instance->getJunctionPort()
         ];
 
         $stmt = $this->db->prepare("INSERT INTO job_logs (job_id, status) VALUES (:jobId, 'pending')");
@@ -40,10 +42,10 @@ class DockerService {
         $stmt->execute();
 
         $stmt = $this->db->prepare("INSERT INTO dockers (slug, app_name, tribe_port, junction_port) VALUES (:slug, :app_name, :tribe_port, :junction_port)");
-        $stmt->bindParam(':slug', $app_uid);
-        $stmt->bindParam(':app_name', $app_name);
-        $stmt->bindParam(':tribe_port', $ports['tribe_port']);
-        $stmt->bindParam(':junction_port', $ports['junction_port']);
+        $stmt->bindParam(':slug', $instance->getAppUid());
+        $stmt->bindParam(':app_name', $instance->getAppName());
+        $stmt->bindParam(':tribe_port', $instance->getTribePort());
+        $stmt->bindParam(':junction_port', $instance->getJunctionPort());
         $stmt->execute();
 
         $this->redis->lpush('docker_jobs', json_encode($spawnJob));
@@ -57,43 +59,4 @@ class DockerService {
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
-    public function getPorts() {
-        $row = $this->db
-                    ->query("SELECT * FROM dockers ORDER BY id DESC LIMIT 1")
-                    ->fetch(\PDO::FETCH_ASSOC);
-
-        // default ports for initialisation
-        $tribe_port = 8080;
-        $junction_port = 8081;
-
-        if ($row) {
-            // increase by 1 based on junction's, since it is supposed to be higher than tribe's
-            $tribe_port = $junction_port = $row['junction_port'] + 1;
-        }
-
-        // find free system port for tribe
-        $status = false;
-        while(!$status) {
-            $status = $this->isPortAvailable($tribe_port);
-            $tribe_port = $status ? $tribe_port : ++$tribe_port;
-        }
-
-        $junction_port = $tribe_port + 1;
-        $status = false;
-        while(!$status) { // find free system port for junction
-            $status = $this->isPortAvailable($junction_port);
-            $junction_port = $status ? $junction_port : ++$junction_port;
-        }
-
-        return [
-            'tribe_port' => $tribe_port,
-            'junction_port' => $junction_port
-        ];
-    }
-
-    private function isPortAvailable($port) {
-        exec("netstat -tnlp | grep $port", $output, $status);
-
-        return $status !== 0;
-    }
 }
