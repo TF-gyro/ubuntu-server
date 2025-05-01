@@ -45,7 +45,7 @@ class PortService
     {
         $row = $this->db
             ->query("SELECT * FROM dockers ORDER BY id DESC LIMIT 1")
-            ->fetch(PDO::FETCH_ASSOC);
+            ->fetch();
 
         // Initialize with default ports
         $tribePort = self::DEFAULT_TRIBE_PORT;
