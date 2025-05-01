@@ -10,9 +10,6 @@ namespace Gyro\Dto;
  */
 class InstanceDTO
 {
-    /** @var string The title of the instance */
-    private string $title;
-
     /** @var string The name of the application */
     private string $appName;
 
@@ -34,7 +31,6 @@ class InstanceDTO
     /**
      * InstanceDTO constructor.
      *
-     * @param string $title The title of the instance
      * @param string $appName The name of the application
      * @param string $appUid The unique identifier of the application
      * @param string $secret The secret key for the instance
@@ -43,7 +39,6 @@ class InstanceDTO
      * @param int $junctionPort The port number for the junction service
      */
     public function __construct(
-        string $title,
         string $appName,
         string $appUid,
         string $secret,
@@ -51,35 +46,12 @@ class InstanceDTO
         int $tribePort,
         int $junctionPort
     ) {
-        $this->title = $title;
         $this->appName = $appName;
         $this->appUid = $appUid;
         $this->secret = $secret;
         $this->domain = $domain;
         $this->tribePort = $tribePort;
         $this->junctionPort = $junctionPort;
-    }
-
-    /**
-     * Get the title of the instance.
-     *
-     * @return string The instance title
-     */
-    public function getTitle(): string
-    {
-        return $this->title;
-    }
-
-    /**
-     * Set the title of the instance.
-     *
-     * @param string $title The instance title
-     * @return self
-     */
-    public function setTitle(string $title): self
-    {
-        $this->title = $title;
-        return $this;
     }
 
     /**
