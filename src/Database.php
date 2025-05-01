@@ -30,8 +30,18 @@ class Database
                 $_ENV['DB_USER'],
                 $_ENV['DB_PASS'],
                 [
+                    // Throw exceptions when errors occur instead of silently failing
+                    // This makes error handling more robust and explicit
                     PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+
+                    // Return results as associative arrays where column names are keys
+                    // Example: ['id' => 1, 'name' => 'John'] instead of [0 => 1, 1 => 'John']
                     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+
+                    // Disable prepared statement emulation
+                    // Uses native prepared statements from the database
+                    // Provides better security against SQL injection
+                    // Ensures proper type handling for parameters
                     PDO::ATTR_EMULATE_PREPARES => false,
                 ]
             );
