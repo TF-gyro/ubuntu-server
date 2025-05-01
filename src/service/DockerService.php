@@ -7,32 +7,14 @@ if (!class_exists('Predis\Client')) {
     die("Predis client not found. Please install predis/predis via composer.");
 }
 
-use \Predis\Client;
 
 class DockerService {
-    public $redis;
-    public $db;
+    private $redis;
+    private $db;
 
-    public function __construct() {
-        $this->redis = new Client();
-
-        try {
-            // TODO: use PDO in MySQL class
-            // connect to MYSQL
-            $this->db = new \PDO("mysql:host={$_ENV['DB_HOST']};dbname={$_ENV['DB_NAME']}", $_ENV['DB_USER'], $_ENV['DB_PASS']);
-
-            // connect to Redis
-            $this->redis->connect($_ENV['REDIS_HOST'], $_ENV['REDIS_PORT']);
-
-            // Authenticate
-            if (!empty($_ENV['REDIS_PASSWORD']) && !$this->redis->auth($_ENV['REDIS_PASSWORD'])) {
-                throw new \Exception('Redis authentication failed');
-            }
-
-            // echo "Connected to Redis successfully!\n";
-        } catch (\Exception $e) {
-            echo "Error: " . $e->getMessage();
-        }
+    public function __construct($db, $redis) {
+        $this->redis = $redis;
+        $this->db = $db;
     }
 
     public function spawnService(string $title, string $app_name, string $app_uid, string $secret, string $domain, array $ports) {
