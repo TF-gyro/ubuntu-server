@@ -1,6 +1,6 @@
 <?php
 // require 'vendor/autoload.php';
-namespace Gyro;
+namespace Gyro\Service;
 
 // Ensure Redis client is installed before using it
 if (!class_exists('Predis\Client')) {
