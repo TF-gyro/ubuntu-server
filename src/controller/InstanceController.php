@@ -83,7 +83,9 @@ class InstanceController {
             $pdo->exec("UNLOCK TABLES");
 
         } catch (\Exception $e) {
-            $pdo->rollBack();
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
             $pdo->exec("UNLOCK TABLES");
             return [
                 'code' => 500,
