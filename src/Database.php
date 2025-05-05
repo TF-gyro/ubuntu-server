@@ -1,4 +1,5 @@
 <?php
+//TODO: Make this in a way that it can be shared between multiple threads across multiple processes
 
 namespace Gyro;
 

@@ -28,11 +28,9 @@ if (!ApiKeyValidator::validate($apiKey)) {
 switch ($api->method()) {
     case 'post':
         goto post;
-        break;
 
     case 'get':
         goto get;
-        break;
 
     default:
         $api->send(405);
@@ -40,17 +38,30 @@ switch ($api->method()) {
 }
 
 /**
- * POST method expects the following params:
- * app_name: string, must contain only alphanumeric characters and underscores
- * app_uid: alphanumeric string without spaces, must be unique
- * junction_secret: secret key for junction
- * domain: service's base domain
- * server: hostname or IP for the server
+ * POST endpoint for creating new service instances.
+ * 
+ * This endpoint handles instance creation requests with the following flow:
+ * 1. Validates API key from request headers
+ * 2. Processes POST request data
+ * 3. Delegates to InstanceController for business logic
+ * 4. Returns appropriate HTTP response
+ * 
+ * Required Headers:
+ * - Authorization: Bearer <api_key> or
+ * - API-Key: <api_key>
+ * 
+ * Required POST Parameters:
+ * - app_name: string (alphanumeric + underscores)
+ * - app_uid: string (alphanumeric, unique)
+ * - junction_secret: string (secret key for junction)
+ * - domain: string (service's base domain)
+ * - server: string (hostname or IP for the server)
  */
 post:
+    // Get request body data
     $req = $api->requestBody;
     
-    // Pass request to controller
+    // Process request through controller
     $result = InstanceController::handlePost($req);
     
     //TODO: Send response with appropriate HTTP code

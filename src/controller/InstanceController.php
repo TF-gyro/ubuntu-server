@@ -11,30 +11,58 @@ use Gyro\Cloudflare\CloudflareService;
 use Gyro\Cloudflare\RecordType;
 use Gyro\Cloudflare\Batch;
 
+/**
+ * InstanceController handles the creation and management of service instances.
+ * This controller is responsible for:
+ * - Validating instance creation requests
+ * - Managing Docker container deployment
+ * - Setting up Cloudflare DNS records
+ * - Handling database transactions
+ */
 class InstanceController {
+    /**
+     * Handles POST requests for creating new service instances.
+     * 
+     * @param array $data Request data containing:
+     *                    - app_name: string (alphanumeric + underscores)
+     *                    - app_uid: string (alphanumeric)
+     *                    - junction_secret: string (min 5 chars)
+     *                    - domain: string (valid domain format)
+     *                    - server: string (valid hostname or IP)
+     * 
+     * @return array Response containing:
+     *               - code: int HTTP status code
+     *               - body: array Response data
+     * 
+     * @throws \Exception On database or service operation failures
+     */
     public static function handlePost($data){
+        // Initialize database and Redis connections
         $pdo = Database::getInstance()->getConnection();
         $redis = Redis::getInstance()->getClient();
+        
+        // Define required fields and validate their presence
         $requiredFields = ['app_name', 'app_uid', 'junction_secret', 'domain', 'server'];
         $errors = [];
 
+        // Validate presence of required fields
         foreach ($requiredFields as $field) {
             if (!isset($data[$field])) {
                 $errors[] = "$field is required";
             }
         }
 
-        // Validate app name format
+        // Validate app name format (alphanumeric + underscores)
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $data['app_name'])) {
             $errors[] = "app_name must contain only alphanumeric characters and underscores";
         }
 
-        // Validate app_uid format
+        // Validate app_uid format (alphanumeric only)
         if (!preg_match('/^[a-zA-Z0-9]+$/', $data['app_uid'])) {
             $errors[] = "app_uid must contain only alphanumeric characters";
         }
 
-        // Validate junction_secret format
+        // Validate junction_secret length
         if (strlen($data['junction_secret']) > 5) {
             $errors[] = "junction_secret must be at least 5 characters long";
         }
@@ -49,6 +77,7 @@ class InstanceController {
             $errors[] = "server must be a valid hostname or IP address";
         }
 
+        // Return validation errors if any
         if (count($errors) > 0) {
             return [
                 'code' => 400,
@@ -56,17 +85,18 @@ class InstanceController {
             ];
         }
 
-        
-
+        // Begin database transaction for atomic operations
         try {
             $pdo->beginTransaction();
 
-            // lock dockers table to avoid race condition
+            // Lock dockers table to prevent race conditions
             $pdo->exec("LOCK TABLES dockers");
 
+            // Get available ports for the new instance
             $portService = new PortService($pdo);
             $ports = $portService->getAvailablePorts();
 
+            // Create instance DTO with validated data
             $instance = new InstanceDTO(
                 $data['app_name'],
                 $data['app_uid'],
@@ -76,13 +106,16 @@ class InstanceController {
                 $ports['junction_port']
             );
 
+            // Deploy Docker container
             $dockerService = new DockerService($pdo, $redis);
             $dockerService->spawnService($instance);
 
+            // Commit transaction and release table lock
             $pdo->commit();
             $pdo->exec("UNLOCK TABLES");
 
         } catch (\Exception $e) {
+            // Rollback transaction and release lock on error
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();
             }
@@ -95,11 +128,12 @@ class InstanceController {
 
         // Create Cloudflare DNS records in a separate try-catch
         try {
+            // Initialize Cloudflare service
             $cloudflareService = new CloudflareService([
                 'apiToken' => $_ENV['CLOUDFLARE_API_TOKEN']
             ]);
 
-            // Create CNAME records
+            // Create CNAME records for the instance
             $record1 = new Record(
                 type: RecordType::CNAME,
                 name: $data['app_name'],
@@ -116,17 +150,19 @@ class InstanceController {
                 proxied: false
             );
 
-            // Create and execute batch
+            // Create and execute batch operation for DNS records
             $batch = new Batch();
             $batch->addCreate($record1)
                   ->addCreate($record2);
 
             $result = $cloudflareService->executeBatch($_ENV['CLOUDFLARE_ZONE_ID'], $batch);
 
+            // Check for Cloudflare API errors
             if (!empty($result['errors'])) {
                 throw new \Exception('Failed to create DNS records: ' . json_encode($result['errors']));
             }
 
+            // Return success response
             return [
                 'code' => 200,
                 'body' => [
@@ -136,6 +172,7 @@ class InstanceController {
             ];
 
         } catch (\Exception $e) {
+            // Return partial success response if DNS setup fails
             return [
                 'code' => 500,
                 'body' => [

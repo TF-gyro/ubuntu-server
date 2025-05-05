@@ -1,5 +1,8 @@
 <?php
 
+//TODO: Make this in a way that it can be shared between multiple threads across multiple processes
+
+
 namespace Gyro;
 // Ensure Redis client is installed before using it
 if (!class_exists('Predis\Client')) {
