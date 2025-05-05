@@ -1,15 +1,14 @@
 <?php
 require_once __DIR__ . "/../vendor/autoload.php";
 
-use \Gyro\DockerService;
+use Gyro\Database;
+use Gyro\Redis;
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__, '/../.env');
 $dotenv->load();
 
-$docker = new DockerService();
-
-$redis = $docker->redis;
-$db = $docker->db;
+$redis = Redis::getInstance()->getClient();
+$db = Database::getInstance()->getConnection();
 
 while (true) {
     // get job from redis
