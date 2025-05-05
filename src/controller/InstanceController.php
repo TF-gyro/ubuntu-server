@@ -6,11 +6,16 @@ use Gyro\Dto\InstanceDTO;
 use Gyro\Service\PortService;
 use Gyro\Service\DockerService;
 use Gyro\Redis;
+use Gyro\Cloudflare\Record;
+use Gyro\Cloudflare\CloudflareService;
+use Gyro\Cloudflare\RecordType;
+use Gyro\Cloudflare\Batch;
+
 class InstanceController {
     public static function handlePost($data){
         $pdo = Database::getInstance()->getConnection();
         $redis = Redis::getInstance()->getClient();
-        $requiredFields = ['app_name', 'app_uid', 'junction_secret', 'domain'];
+        $requiredFields = ['app_name', 'app_uid', 'junction_secret', 'domain', 'server'];
         $errors = [];
 
         foreach ($requiredFields as $field) {
@@ -26,15 +31,10 @@ class InstanceController {
             ];
         }
 
+        //TODO: Validate rather than replace
         //Sanatize and prepare data         
         $app_name = preg_replace('/[^a-zA-Z0-9]/s', '', $data['app_name']); // allow only alphanumeric characters
         $app_name = preg_replace('!\s+!', '_', $app_name); // replace spaces with underscore
-
-        // get ports and lock table. find free ports and spawn service. Then update table with ports and release lock.
-        // lock dockers table
-        // get ports 
-        // pass to dockerService to spawn services
-        // update table with ports and release lock
 
         try {
             $pdo->beginTransaction();
@@ -60,7 +60,6 @@ class InstanceController {
             $pdo->commit();
             $pdo->exec("UNLOCK TABLES");
 
-            
         } catch (\Exception $e) {
             $pdo->rollBack();
             $pdo->exec("UNLOCK TABLES");
@@ -70,6 +69,56 @@ class InstanceController {
             ];
         }
 
-        // call cloudflare service and return response
+        // Create Cloudflare DNS records in a separate try-catch
+        try {
+            $cloudflareService = new CloudflareService([
+                'apiToken' => $_ENV['CLOUDFLARE_API_TOKEN']
+            ]);
+
+            // Create CNAME records
+            $record1 = new Record(
+                type: RecordType::CNAME,
+                name: $app_name,
+                content: $data['server'],
+                ttl: 3600,
+                proxied: true
+            );
+
+            $record2 = new Record(
+                type: RecordType::CNAME,
+                name: $app_name . '.tribe',
+                content: $data['server'],
+                ttl: 3600,
+                proxied: false
+            );
+
+            // Create and execute batch
+            $batch = new Batch();
+            $batch->addCreate($record1)
+                  ->addCreate($record2);
+
+            $result = $cloudflareService->executeBatch($_ENV['CLOUDFLARE_ZONE_ID'], $batch);
+
+            if (!empty($result['errors'])) {
+                throw new \Exception('Failed to create DNS records: ' . json_encode($result['errors']));
+            }
+
+            return [
+                'code' => 200,
+                'body' => [
+                    'ok' => true,
+                    'message' => 'Instance created and DNS records added successfully'
+                ]
+            ];
+
+        } catch (\Exception $e) {
+            return [
+                'code' => 500,
+                'body' => [
+                    'ok' => false,
+                    'errors' => 'Instance created but DNS records failed: ' . $e->getMessage()
+                ]
+            ];
+        }
     }
 }   

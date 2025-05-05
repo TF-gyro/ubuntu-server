@@ -21,6 +21,7 @@ class DockerService {
 
     public function spawnService(InstanceDTO $instance) {
         // Validate image name to prevent invalid Docker commands
+        // TODO: throw error if invalid
         if (!preg_match('/^[a-zA-Z0-9-_]+(:[a-zA-Z0-9._-]+)?$/', $instance->getAppName())) {
             return ['error' => 'Invalid Docker image name.'];
         }
