@@ -1,8 +1,29 @@
 <?php
 use Tribe\API;
 use Gyro\Controller\InstanceController;
+use Gyro\Middleware\ApiKeyValidator;
 
 $api = new API();
+
+// Extract API key from headers
+$apiKey = null;
+
+// Check various header formats for API key
+if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+    $auth = $_SERVER['HTTP_AUTHORIZATION'];
+    if (strpos($auth, 'Bearer ') === 0) {
+        $apiKey = substr($auth, 7);
+    }
+} elseif (isset($_SERVER['HTTP_API_KEY'])) {
+    $apiKey = $_SERVER['HTTP_API_KEY'];
+}
+
+// Validate API key
+if (!ApiKeyValidator::validate($apiKey)) {
+    header('HTTP/1.1 401 Unauthorized');
+    $api->json(['ok' => false, 'error' => 'Invalid or missing API key'])->send();
+    exit;
+}
 
 switch ($api->method()) {
     case 'post':
