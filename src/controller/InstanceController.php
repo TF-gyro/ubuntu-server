@@ -29,6 +29,26 @@ class InstanceController {
             $errors[] = "app_name must contain only alphanumeric characters and underscores";
         }
 
+        // Validate app_uid format
+        if (!preg_match('/^[a-zA-Z0-9]+$/', $data['app_uid'])) {
+            $errors[] = "app_uid must contain only alphanumeric characters";
+        }
+
+        // Validate junction_secret format
+        if (strlen($data['junction_secret']) > 5) {
+            $errors[] = "junction_secret must be at least 5 characters long";
+        }
+
+        // Validate domain format
+        if (!preg_match('/^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/', $data['domain'])) {
+            $errors[] = "domain must be a valid domain name";
+        }
+
+        // Validate server format (hostname or IP)
+        if (!preg_match('/^([a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]\.)+[a-zA-Z]{2,}$|^(\d{1,3}\.){3}\d{1,3}$/', $data['server'])) {
+            $errors[] = "server must be a valid hostname or IP address";
+        }
+
         if (count($errors) > 0) {
             return [
                 'code' => 400,
