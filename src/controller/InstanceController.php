@@ -24,6 +24,11 @@ class InstanceController {
             }
         }
 
+        // Validate app name format
+        if (!preg_match('/^[a-zA-Z0-9_]+$/', $data['app_name'])) {
+            $errors[] = "app_name must contain only alphanumeric characters and underscores";
+        }
+
         if (count($errors) > 0) {
             return [
                 'code' => 400,
@@ -31,10 +36,7 @@ class InstanceController {
             ];
         }
 
-        //TODO: Validate rather than replace
-        //Sanatize and prepare data         
-        $app_name = preg_replace('/[^a-zA-Z0-9]/s', '', $data['app_name']); // allow only alphanumeric characters
-        $app_name = preg_replace('!\s+!', '_', $app_name); // replace spaces with underscore
+        
 
         try {
             $pdo->beginTransaction();
@@ -46,7 +48,7 @@ class InstanceController {
             $ports = $portService->getAvailablePorts();
 
             $instance = new InstanceDTO(
-                $app_name,
+                $data['app_name'],
                 $data['app_uid'],
                 $data['junction_secret'],
                 $data['domain'],
@@ -78,7 +80,7 @@ class InstanceController {
             // Create CNAME records
             $record1 = new Record(
                 type: RecordType::CNAME,
-                name: $app_name,
+                name: $data['app_name'],
                 content: $data['server'],
                 ttl: 3600,
                 proxied: true
@@ -86,7 +88,7 @@ class InstanceController {
 
             $record2 = new Record(
                 type: RecordType::CNAME,
-                name: $app_name . '.tribe',
+                name: $data['app_name'] . '.tribe',
                 content: $data['server'],
                 ttl: 3600,
                 proxied: false
