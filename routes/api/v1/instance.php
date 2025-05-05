@@ -1,9 +1,8 @@
 <?php
 use Tribe\API;
-use Gyro\DockerService;
+use Gyro\Controller\InstanceController;
 
 $api = new API();
-$docker = new DockerService();
 
 switch ($api->method()) {
     case 'post':
@@ -21,30 +20,22 @@ switch ($api->method()) {
 
 /**
  * POST method expects the following params:
- * app_name: string, whitespaces allowed
- * app_uid: alphanumeric string without spaces, must be unique and random
+ * app_name: string, must contain only alphanumeric characters and underscores
+ * app_uid: alphanumeric string without spaces, must be unique
  * junction_secret: secret key for junction
  * domain: service's base domain
+ * server: hostname or IP for the server
  */
 post:
     $req = $api->requestBody;
+    
+    // Pass request to controller
+    $result = InstanceController::handlePost($req);
+    
+    //TODO: Send response with appropriate HTTP code
+    //$api->status($result['code'])->json($result['body'])->send();
 
-    $app_name = preg_replace('/[^a-zA-Z0-9]/s', '', $req['app_name']); // allow only alphanumeric characters
-    $app_name = preg_replace('!\s+!', '_', $app_name); // replace spaces with underscore
-    // $app_name .= "_{$req['app_uid']}";
-
-    $ports = $docker->getPorts();
-
-    $res = $docker->spawnService(
-        $req['app_name'],
-        $app_name,
-        $req['app_uid'],
-        $req['junction_secret'],
-        $req['domain'],
-        $ports
-    );
-
-    $api->json($res)->send();
+    $api->json($result['body'])->send();
 
 get:
     $res = $docker->getJobStatus($_GET['job_id']);
