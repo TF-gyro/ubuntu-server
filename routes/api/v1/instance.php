@@ -64,10 +64,9 @@ post:
     // Process request through controller
     $result = InstanceController::handlePost($req);
     
-    //TODO: Send response with appropriate HTTP code
     //$api->status($result['code'])->json($result['body'])->send();
 
-    $api->json($result['body'])->send();
+    $api->json($result['body'])->send($result['code']);
 
 get:
     $res = $docker->getJobStatus($_GET['job_id']);
