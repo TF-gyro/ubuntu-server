@@ -10,7 +10,7 @@ use Gyro\Cloudflare\Record;
 use Gyro\Cloudflare\CloudflareService;
 use Gyro\Cloudflare\RecordType;
 use Gyro\Cloudflare\Batch;
-
+use Gyro\DockerStatus;
 /**
  * InstanceController handles the creation and management of service instances.
  * This controller is responsible for:
@@ -109,6 +109,7 @@ class InstanceController {
             // Deploy Docker container
             $dockerService = new DockerService($pdo, $redis);
             $dockerService->spawnService($instance);
+            $instance->setStatus(DockerStatus::PENDING);
 
             // Commit transaction and release table lock
             $pdo->commit();
