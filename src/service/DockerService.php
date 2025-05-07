@@ -3,6 +3,7 @@
 namespace Gyro\Service;
 
 use Gyro\Dto\InstanceDTO;
+use Gyro\DockerStatus;
 
 /**
  * DockerService handles Docker container operations and job management.
@@ -98,13 +99,15 @@ class DockerService {
                 :app_name, 
                 :tribe_port, 
                 :junction_port, 
-                'pending'
+                :status
             )
         ");
+        $status = DockerStatus::PENDING->value;
         $stmt->bindValue(':slug', $instance->getAppUid());
         $stmt->bindValue(':app_name', $instance->getAppName());
         $stmt->bindValue(':tribe_port', $instance->getTribePort());
         $stmt->bindValue(':junction_port', $instance->getJunctionPort());
+        $stmt->bindValue(':status', $status);
         $stmt->execute();
 
         // Queue the job in Redis for processing

@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . "/../vendor/autoload.php";
 
+use Gyro\JobStatus;
+use Gyro\DockerStatus;
 use Gyro\Database;
 use Gyro\Redis;
 
@@ -20,8 +22,10 @@ while (true) {
     $job_id = $job['job_id'];
 
     // update job_log's status to running
-    $db->prepare("UPDATE job_logs SET status = 'running' WHERE job_id = ?")
-       ->execute([$job_id]);
+    $stmt = $db->prepare("UPDATE job_logs SET status = :status WHERE job_id = :job_id");
+    $stmt->bindValue(':status', JobStatus::RUNNING->value);
+    $stmt->bindValue(':job_id', $job_id);
+    $stmt->execute();
 
     // run docker setup
     $args = "app_name={$job['app_name']}&";
@@ -35,19 +39,34 @@ while (true) {
     exec("php docker-tribe-setup.php '$args'", $output, $status);
 
     if ($status === 0) {
-        $db->prepare("UPDATE job_logs SET status = 'completed' WHERE job_id = ?")
-           ->execute([$job_id]);
+        // Update job status to completed
+        $stmt = $db->prepare("UPDATE job_logs SET status = :status WHERE job_id = :job_id");
+        $stmt->bindValue(':status', JobStatus::COMPLETED->value);
+        $stmt->bindValue(':job_id', $job_id);
+        $stmt->execute();
 
-        $db->prepare("UPDATE dockers SET status = 'success' WHERE slug = ?")
-            ->execute([$job['app_uid']]);
+        // Update docker status to running
+        $stmt = $db->prepare("UPDATE dockers SET status = :status WHERE slug = :slug");
+        $stmt->bindValue(':status', DockerStatus::RUNNING->value);
+        $stmt->bindValue(':slug', $job['app_uid']);
+        $stmt->execute();
     } else {
         $errorMessage = implode("\n", $output);
         error_log("Docker spawn failed for job $job_id: $errorMessage");
-        $db->prepare("UPDATE job_logs SET status = 'failed', output = ? WHERE job_id = ?")
-           ->execute([$errorMessage, $job_id]);
+        
+        // Update job status to failed
+        $stmt = $db->prepare("UPDATE job_logs SET status = :status, output = :output WHERE job_id = :job_id");
+        $stmt->bindValue(':status', JobStatus::FAILED->value);
+        $stmt->bindValue(':output', $errorMessage);
+        $stmt->bindValue(':job_id', $job_id);
+        $stmt->execute();
 
-        $db->prepare("UPDATE dockers SET status = 'failed' WHERE slug = ?")
-           ->execute([$job['app_uid']]);
+        // Update docker status to failed
+        $stmt = $db->prepare("UPDATE dockers SET status = :status WHERE slug = :slug");
+        $stmt->bindValue(':status', DockerStatus::FAILED->value);
+        $stmt->bindValue(':slug', $job['app_uid']);
+        $stmt->execute();
+        
         continue;
     }
 

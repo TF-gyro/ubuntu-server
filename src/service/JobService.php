@@ -2,6 +2,7 @@
 
 namespace Gyro\Service;
 
+use Gyro\JobStatus;
 use PDO;
 
 /**
@@ -36,8 +37,10 @@ class JobService
      */
     public function createJob(string $jobId): bool
     {
-        $stmt = $this->db->prepare("INSERT INTO job_logs (job_id, status) VALUES (:jobId, 'pending')");
+        $stmt = $this->db->prepare("INSERT INTO job_logs (job_id, status) VALUES (:jobId, :status)");
+        $status = JobStatus::PENDING->value;
         $stmt->bindParam(':jobId', $jobId);
+        $stmt->bindParam(':status', $status);
         return $stmt->execute();
     }
 
