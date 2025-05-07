@@ -2,6 +2,8 @@
 
 namespace Gyro\Dto;
 
+use Gyro\DockerStatus;
+
 /**
  * Data Transfer Object (DTO) for Instance information.
  * 
@@ -27,6 +29,9 @@ class InstanceDTO
 
     /** @var int The port number for the junction service */
     private int $junctionPort;
+
+    /** @var DockerStatus The current status of the Docker instance */
+    private DockerStatus $status;
 
     /**
      * InstanceDTO constructor.
@@ -187,6 +192,28 @@ class InstanceDTO
     }
 
     /**
+     * Get the current status of the Docker instance.
+     *
+     * @return DockerStatus The current status
+     */
+    public function getStatus(): DockerStatus
+    {
+        return $this->status;
+    }
+
+    /**
+     * Set the current status of the Docker instance.
+     *
+     * @param DockerStatus $status The new status
+     * @return self
+     */
+    public function setStatus(DockerStatus $status): self
+    {
+        $this->status = $status;
+        return $this;
+    }
+
+    /**
      * Convert the DTO to an associative array.
      * 
      * @return array An associative array containing all DTO properties
@@ -199,7 +226,8 @@ class InstanceDTO
             'secret' => $this->secret,
             'domain' => $this->domain,
             'tribe_port' => $this->tribePort,
-            'junction_port' => $this->junctionPort
+            'junction_port' => $this->junctionPort,
+            'status' => $this->status?->value
         ];
     }
 }
