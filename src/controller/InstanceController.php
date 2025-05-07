@@ -136,7 +136,7 @@ class InstanceController {
             // Create CNAME records for the instance
             $record1 = new Record(
                 type: RecordType::CNAME,
-                name: $data['app_name'],
+                name: $instance->getAppName(),
                 content: $data['server'],
                 ttl: 3600,
                 proxied: true
@@ -144,7 +144,7 @@ class InstanceController {
 
             $record2 = new Record(
                 type: RecordType::CNAME,
-                name: $data['app_name'] . '.tribe',
+                name: $instance->getAppName() . '.tribe',
                 content: $data['server'],
                 ttl: 3600,
                 proxied: false
@@ -167,7 +167,8 @@ class InstanceController {
                 'code' => 200,
                 'body' => [
                     'ok' => true,
-                    'message' => 'Instance created and DNS records added successfully'
+                    'message' => 'Instance created and DNS records added successfully',
+                    'instance' => $instance->toArray()
                 ]
             ];
 

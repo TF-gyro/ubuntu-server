@@ -185,4 +185,21 @@ class InstanceDTO
         $this->junctionPort = $junctionPort;
         return $this;
     }
+
+    /**
+     * Convert the DTO to an associative array.
+     * 
+     * @return array An associative array containing all DTO properties
+     */
+    public function toArray(): array
+    {
+        return [
+            'app_name' => $this->appName,
+            'app_uid' => $this->appUid,
+            'secret' => $this->secret,
+            'domain' => $this->domain,
+            'tribe_port' => $this->tribePort,
+            'junction_port' => $this->junctionPort
+        ];
+    }
 }
