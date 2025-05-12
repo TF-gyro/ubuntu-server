@@ -20,7 +20,7 @@ if [[ -z "${DiskDir}" ]]; then
   help
 fi
 
-if [[ -z "${DiskName+x}" ]]; then
+if [[ -z "${DiskName}" ]]; then
   DiskName="junction_disk"
 fi
 
@@ -34,4 +34,3 @@ BlockCount=$(($BlockCount / 512))
 dd if=/dev/zero of="${DiskDir}/${DiskName}.img" bs=$BlockSize count=$BlockCount
 
 mkfs.ext4 "${DiskDir}/${DiskName}.img"
-
