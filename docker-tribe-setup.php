@@ -103,6 +103,7 @@ file_put_contents("{$APP_PATH}/tribe/config.inc.php", $pma_config); // write cha
 
 exec("chown -R www-data: $APP_PATH"); // transfer ownership of app to www-data
 
+exec("docker compose pull");
 exec("docker compose up -d"); // start docker app
 
 // wait for process to start before importing and applying database structure
