@@ -51,6 +51,11 @@ mkdir /var/www/html/logs;
 chown www-data: /var/www/html -R
 chmod 755 /var/www/html
 
+# create slug tracking files and change their ownership
+touch /var/www/html/docker-tribe-slugs.txt
+touch /var/www/html/docker-tribe-destroy-slugs.txt
+chown www-data: /var/www/html/docker-tribe-slugs.txt /var/www/html/docker-tribe-destroy-slugs.txt
+
 echo "root" >> /etc/incron.allow
 systemctl start incron.service
 
