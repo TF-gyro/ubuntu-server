@@ -10,6 +10,6 @@ sftp-config.json
 .DS_Store
 /ssl/*
 *.pem
-logs
+logs/
 
 *.txt
