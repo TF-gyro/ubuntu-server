@@ -64,22 +64,25 @@ $APP_PATH = "{$BASE_DIR}/{$APP_UID}";
 chdir($APP_PATH);
 
 // update docker-compose variables
-$docker_compose = file_get_contents("{$APP_PATH}/docker-compose.yml");
-$docker_compose = str_replace("\$APP_UID", $APP_NAME, $docker_compose);
-$docker_compose = str_replace("\$DB_USER", $DB_USER, $docker_compose);
-$docker_compose = str_replace("\$DB_NAME", $DB_NAME, $docker_compose);
-$docker_compose = str_replace("\$DB_PASS", $DB_PASS, $docker_compose);
-$docker_compose = str_replace("\$TRIBE_PORT", $TRIBE_PORT, $docker_compose);
-$docker_compose = str_replace("\$JUNCTION_PORT", $JUNCTION_PORT, $docker_compose);
+// $docker_compose = file_get_contents("{$APP_PATH}/docker-compose.yml");
+// $docker_compose = str_replace("\$APP_UID", $APP_NAME, $docker_compose);
+// $docker_compose = str_replace("\$DB_USER", $DB_USER, $docker_compose);
+// $docker_compose = str_replace("\$DB_NAME", $DB_NAME, $docker_compose);
+// $docker_compose = str_replace("\$DB_PASS", $DB_PASS, $docker_compose);
+// $docker_compose = str_replace("\$TRIBE_PORT", $TRIBE_PORT, $docker_compose);
+// $docker_compose = str_replace("\$JUNCTION_PORT", $JUNCTION_PORT, $docker_compose);
 
-file_put_contents("{$APP_PATH}/docker-compose.yml", $docker_compose);
+// file_put_contents("{$APP_PATH}/docker-compose.yml", $docker_compose);
 
 // update .env
-copy("{$APP_PATH}/tribe/.env.sample", "{$APP_PATH}/tribe/.env");
-$env_file = file_get_contents("{$APP_PATH}/tribe/.env");
+copy("{$APP_PATH}/.sample.env", "{$APP_PATH}/.env");
+$env_file = file_get_contents("{$APP_PATH}/.env");
 $env_file = str_replace("\$JUNCTION_PASS", $JUNCTION_PASS, $env_file);
 $env_file = str_replace("\$JUNCTION_URL", $JUNCTION_URL, $env_file);
 $env_file = str_replace("\$APP_UID", $APP_UID, $env_file);
+
+$env_file = str_replace("\$TRIBE_PORT", $TRIBE_PORT, $env_file);
+$env_file = str_replace("\$JUNCTION_PORT", $JUNCTION_PORT, $env_file);
 
 $env_file = str_replace("\$APP_NAME", $APP_NAME, $env_file);
 $env_file = str_replace("\$WEB_BARE_URL", $WEB_BARE_URL, $env_file);
@@ -93,13 +96,13 @@ $env_file = str_replace("\$DB_USER", $DB_USER, $env_file);
 $env_file = str_replace("\$DB_PASS", $DB_PASS, $env_file);
 $env_file = str_replace("\$DB_HOST", $DB_HOST, $env_file);
 
-file_put_contents("{$APP_PATH}/tribe/.env", $env_file); // write changes to .env
+file_put_contents("{$APP_PATH}/.env", $env_file); // write changes to .env
 
 // update PMA configuration
-$pma_config = file_get_contents("{$APP_PATH}/tribe/config.inc.php");
+$pma_config = file_get_contents("{$APP_PATH}/config/phpmyadmin/config.inc.php");
 $pma_config = str_replace("\$DB_HOST", $DB_HOST, $pma_config);
 
-file_put_contents("{$APP_PATH}/tribe/config.inc.php", $pma_config); // write changes to pma_config
+file_put_contents("{$APP_PATH}/config/phpmyadmin/config.inc.php", $pma_config); // write changes to pma_config
 
 exec("chown -R www-data: $APP_PATH"); // transfer ownership of app to www-data
 
@@ -107,4 +110,4 @@ exec("docker compose pull");
 exec("docker compose up -d"); // start docker app
 
 // wait for process to start before importing and applying database structure
-exec("sleep 30; docker exec -i {$DB_HOST} mysql -u{$DB_USER} -p{$DB_PASS} {$DB_NAME} < {$APP_PATH}/tribe/install/db.sql; while [ $? -eq 1 ]; do docker exec -i {$DB_HOST} mysql -u{$DB_USER} -p{$DB_PASS} {$DB_NAME} < {$APP_PATH}/tribe/install/db.sql; sleep 2; done;");
+exec("sleep 30; docker exec -i {$DB_HOST} mysql -u{$DB_USER} -p{$DB_PASS} {$DB_NAME} < {$APP_PATH}/install/db.sql; while [ $? -eq 1 ]; do docker exec -i {$DB_HOST} mysql -u{$DB_USER} -p{$DB_PASS} {$DB_NAME} < {$APP_PATH}/install/db.sql; sleep 2; done;");
