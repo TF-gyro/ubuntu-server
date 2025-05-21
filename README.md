@@ -3,9 +3,9 @@
 curl https://raw.githubusercontent.com/tribe-framework/ubuntu-server/master/scripts/bash/install.sh | sudo bash;
 ```
 
-### Install server code
+<!-- ### Install server code
 - edit first line in install.sh
-- bash ./install.sh
+- bash ./install.sh -->
 
 ### Copy folder
 - Copy folder at /var/www/html from github repo tribe-framework/ubuntu-server
