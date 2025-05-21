@@ -1,6 +1,6 @@
 ## install core-server using the following script in command line
 ```bash
-curl https://raw.githubusercontent.com/tribe-framework/ubuntu-server/master/scripts/bash/install.sh | sudo bash;
+curl -s https://raw.githubusercontent.com/tribe-framework/ubuntu-server/master/scripts/bash/install.sh | sudo bash
 ```
 
 <!-- ### Install server code
