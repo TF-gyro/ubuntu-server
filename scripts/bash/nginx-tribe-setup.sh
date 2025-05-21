@@ -19,7 +19,7 @@ ln -fs /etc/nginx/sites-available/$nginx_conf /etc/nginx/sites-enabled/$nginx_co
 nginx -s reload;
 
 # Run php script to setup docker
-php /var/www/html/docker-compose-up.php "$vars"
+php /var/www/html/scripts/docker/compose-up.php "$vars"
 
 #/usr/bin/certbot --agree-tos --no-eff-email --email tech@wildfire.world --nginx -d $slug.junction.express -d $slug.tribe.junction.express;
 #nginx -s reload;
