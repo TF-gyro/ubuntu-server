@@ -1,5 +1,17 @@
 # change the following line manually and run "bash install.sh"
-servername="j0.wildfire.world"
+if [[ $EUID -ne 0 ]]; then
+  echo "This script must be run as root."
+  exit 1
+fi
+
+read -p "Enter server name (eg - d1.domain.tld): " servername
+if [[ -z "$servername" ]]; then
+  echo "Error: Server name cannot be empty."
+  exit 1
+fi
+
+# old code
+# servername="j0.wildfire.world"
 
 # no changes after this line
 # --------
