@@ -11,7 +11,9 @@ if (!isset($_SERVER['HTTP_HOST'])) {
 $slug = $_POST['app_uid'];
 
 chdir("/mnt/junctions/$slug");
-exec("docker compose down");
+
+exec("docker compose down"); // bring down composer stack
+exec("bash ./install/docker-scripts/setup-network.sh"); // remove network of this stack
 
 chdir("/mnt/junctions");
 exec("rm -rf $slug");

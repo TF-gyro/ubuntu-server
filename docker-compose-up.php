@@ -63,17 +63,6 @@ try {
 $APP_PATH = "{$BASE_DIR}/{$APP_UID}";
 chdir($APP_PATH);
 
-// update docker-compose variables
-// $docker_compose = file_get_contents("{$APP_PATH}/docker-compose.yml");
-// $docker_compose = str_replace("\$APP_UID", $APP_NAME, $docker_compose);
-// $docker_compose = str_replace("\$DB_USER", $DB_USER, $docker_compose);
-// $docker_compose = str_replace("\$DB_NAME", $DB_NAME, $docker_compose);
-// $docker_compose = str_replace("\$DB_PASS", $DB_PASS, $docker_compose);
-// $docker_compose = str_replace("\$TRIBE_PORT", $TRIBE_PORT, $docker_compose);
-// $docker_compose = str_replace("\$JUNCTION_PORT", $JUNCTION_PORT, $docker_compose);
-
-// file_put_contents("{$APP_PATH}/docker-compose.yml", $docker_compose);
-
 // update .env
 copy("{$APP_PATH}/.sample.env", "{$APP_PATH}/.env");
 $env_file = file_get_contents("{$APP_PATH}/.env");
@@ -106,8 +95,9 @@ file_put_contents("{$APP_PATH}/config/phpmyadmin/config.inc.php", $pma_config); 
 
 exec("chown -R www-data: $APP_PATH"); // transfer ownership of app to www-data
 
-exec("docker compose pull");
-exec("docker compose up -d"); // start docker app
+exec("bash ./install/docker-scripts/setup-network.sh"); // create and add network information for this stack
+exec("docker compose pull"); // pull the latest image for this stack
+exec("docker compose up -d"); // bring up the composer stack
 
 // wait for process to start before importing and applying database structure
-exec("sleep 30; docker exec -i {$DB_HOST} mysql -u{$DB_USER} -p{$DB_PASS} {$DB_NAME} < {$APP_PATH}/install/db.sql; while [ $? -eq 1 ]; do docker exec -i {$DB_HOST} mysql -u{$DB_USER} -p{$DB_PASS} {$DB_NAME} < {$APP_PATH}/install/db.sql; sleep 2; done;");
+exec("docker exec -i {$DB_HOST} mysql -u{$DB_USER} -p{$DB_PASS} {$DB_NAME} < {$APP_PATH}/install/db.sql; while [ $? -eq 1 ]; do docker exec -i {$DB_HOST} mysql -u{$DB_USER} -p{$DB_PASS} {$DB_NAME} < {$APP_PATH}/install/db.sql; sleep 2; done;");
