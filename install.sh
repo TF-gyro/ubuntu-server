@@ -63,5 +63,5 @@ sed -i "s/%servername%/${servername}/g" /etc/nginx/sites-available/$servername
 ln -s /etc/nginx/sites-available/$servername /etc/nginx/sites-enabled/$servername;
 nginx -t && nginx -s reload;
 
-certbot --agree-tos --no-eff-email --email tech@wildfire.world --nginx -d $servername;
+certbot --agree-tos --no-eff-email --email tech@truearch.io --nginx -d $servername;
 nginx -t && nginx -s reload;
