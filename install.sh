@@ -1,19 +1,30 @@
-# change the following line manually and run "bash install.sh"
-servername="j0.wildfire.world"
+read -p "Domain name (www.mydomain.com): " servername
 
-# no changes after this line
-# --------
+if [ -z "$servername" ]; then
+  echo "Domain name not provided, cannot continue."
+  exit 1
+fi
+
+read -p "Contact email for certbot: " contact_email
+
+if [ -z "$servername" ]; then
+  echo "Email not provided, cannot continue."
+  exit 1
+fi
 
 export DEBIAN_FRONTEND=noninteractive
-
-# Remove packages that can conflict with docker
-apt-get remove docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc apache2
 
 apt-get -yq update
 apt-get -yq upgrade
 
 # Start setting up the system
-apt-get -yq install swapspace lsb-release ca-certificates curl php php-cgi php-fpm apt-transport-https software-properties-common nginx net-tools zip unzip p7zip-full build-essential curl s3cmd htop imagemagick ffmpeg poppler-utils inotify-tools incron zsh tmux python3 python3-venv libaugeas0
+apt-get -yq install swapspace lsb-release ca-certificates php php-cgi php-fpm apt-transport-https software-properties-common nginx net-tools zip unzip p7zip-full build-essential curl s3cmd htop imagemagick ffmpeg poppler-utils inotify-tools incron zsh tmux python3 python3-venv libaugeas0 ufw
+
+rm -r /var/www/html
+apt-get purge -yq apache2
+apt-get autoremove -yq
+
+systemctl start nginx
 
 ## CERTBOT
 # Setup python venv
@@ -24,7 +35,7 @@ python3 -m venv /opt/certbot/
 /opt/certbot/bin/pip install certbot certbot-nginx
 
 # prepare certbot
-sudo ln -s /opt/certbot/bin/certbot /usr/bin/certbot
+ln -s /opt/certbot/bin/certbot /usr/bin/certbot
 
 ufw allow OpenSSH
 ufw allow Postfix
@@ -37,31 +48,31 @@ yes | ufw enable
 
 # setting up docker
 install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-chmod a+r /etc/apt/keyrings/docker.asc
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  tee /etc/apt/sources.list.d/docker.list > /dev/null
-apt-get update
-apt-get -yq install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-docker pull tribeframework/tribe:latest
 
-mkdir /var/www/html/logs;
-chown www-data: /var/www/html -R
-chmod 755 /var/www/html
+# add docker's GPG keys
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+
+# add docker's repo
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+
+apt-get update
+apt-get -yq install docker-ce
+
+APP_DIR="/var/www/$servername"
+
+mkdir -p $APP_DIR/logs;
+touch $APP_DIR/logs/{access,error}.log
+chown www-data: $APP_DIR -R
+chmod 755 $APP_DIR
 
 echo "root" >> /etc/incron.allow
 systemctl start incron.service
 
-rm /etc/nginx/sites-available/default
-rm /etc/nginx/sites-enabled/default
-
 cp ./nginx/default.conf /etc/nginx/sites-available/$servername
 sed -i "s/%servername%/${servername}/g" /etc/nginx/sites-available/$servername
 
-ln -s /etc/nginx/sites-available/$servername /etc/nginx/sites-enabled/$servername;
+ln -sf /etc/nginx/sites-available/$servername /etc/nginx/sites-enabled/$servername;
 nginx -t && nginx -s reload;
 
-certbot --agree-tos --no-eff-email --email tech@truearch.io --nginx -d $servername;
+certbot --agree-tos --no-eff-email --email $contact_email --nginx -d $servername;
 nginx -t && nginx -s reload;
