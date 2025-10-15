@@ -10,7 +10,6 @@ $dotenv = Dotenv\Dotenv::createImmutable(__DIR__, '/../.env');
 $dotenv->load();
 
 $redis = Redis::getInstance()->getClient();
-$db = Database::getInstance()->getConnection();
 
 while (true) {
     // get job from redis
@@ -21,6 +20,9 @@ while (true) {
 
     $job_id = $job['job_id'];
 
+    // Get fresh database connection for this operation
+    $db = Database::getInstance()->getConnection();
+    
     // update job_log's status to running
     $stmt = $db->prepare("UPDATE job_logs SET status = :status WHERE job_id = :job_id");
     $stmt->bindValue(':status', JobStatus::RUNNING->value);
@@ -33,12 +35,23 @@ while (true) {
     $args .= "secret={$job['secret']}&";
     $args .= "domain={$job['domain']}&";
     $args .= "tribe_port={$job['tribe_port']}&";
-    $args .= "junction_port={$job['junction_port']}";
+    $args .= "junction_port={$job['junction_port']}&";
     $args .= "title={$job['title']}";
 
-    exec("php docker-tribe-setup.php '$args'", $output, $status);
+    echo "Processing job $job_id: {$job['app_name']}\n";
+    echo "Running: php " . __DIR__ . "/docker-tribe-setup.php '$args'\n";
+    
+    exec("php " . __DIR__ . "/docker-tribe-setup.php '$args'", $output, $status);
+    
+    echo "Docker setup exit status: $status\n";
+    if (!empty($output)) {
+        echo "Docker setup output: " . implode("\n", $output) . "\n";
+    }
 
     if ($status === 0) {
+        // Get fresh database connection for these operations
+        $db = Database::getInstance()->getConnection();
+        
         // Update job status to completed
         $stmt = $db->prepare("UPDATE job_logs SET status = :status WHERE job_id = :job_id");
         $stmt->bindValue(':status', JobStatus::COMPLETED->value);
@@ -53,6 +66,9 @@ while (true) {
     } else {
         $errorMessage = implode("\n", $output);
         error_log("Docker spawn failed for job $job_id: $errorMessage");
+        
+        // Get fresh database connection for these operations
+        $db = Database::getInstance()->getConnection();
         
         // Update job status to failed
         $stmt = $db->prepare("UPDATE job_logs SET status = :status, output = :output WHERE job_id = :job_id");

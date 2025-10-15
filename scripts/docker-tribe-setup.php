@@ -47,7 +47,7 @@ if (!$APP_UID) {
     die("'app_uid' is required");
 }
 
-exec("sudo ./nginx-tribe-setup.sh --jport=$JUNCTION_PORT --tport=$TRIBE_PORT --slug=$APP_UID --root=/var/www/gyro --ssl-dir=/var/www/gyro/ssl");
+exec("sudo ./nginx-tribe-setup.sh --jport=$JUNCTION_PORT --tport=$TRIBE_PORT --slug=$APP_UID --root=/var/www/t0.truearch.io --ssl-dir=/etc/letsencrypt/live/truearch.io");
 
 $BASE_DIR = "/mnt/junctions";
 
@@ -70,7 +70,7 @@ $APP_PATH = "{$BASE_DIR}/{$APP_UID}";
 chdir($APP_PATH);
 
 $docker_vars = array(
-    'APP_UID' => $APP_NAME,
+    'APP_UID' => $APP_UID,
     'DB_USER' => $DB_USER,
     'DB_NAME' => $DB_NAME,
     'DB_PASS' => $DB_PASS,

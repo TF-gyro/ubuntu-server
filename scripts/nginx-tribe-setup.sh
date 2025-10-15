@@ -46,12 +46,12 @@ done
 cd $root
 
 # Setup nginx config
-nginx_conf="${slug}.junction.express.conf"
+nginx_conf="${slug}.truearch.io.conf"
 cp ./nginx/tribe_server.conf /etc/nginx/sites-available/$nginx_conf
-sed -i "s/$__SLUG/${slug}/g" /etc/nginx/sites-available/$nginx_conf
-sed -i "s/$__JUNCTION_PORT/${jport}/g" /etc/nginx/sites-available/$nginx_conf
-sed -i "s/$__TRIBE_PORT/${tport}/g" /etc/nginx/sites-available/$nginx_conf
-sed -i "s/$__SSL_PATH/${sslDir}/g" /etc/nginx/sites-available/$nginx_conf
+sed -i "s/\$__SLUG/${slug}/g" /etc/nginx/sites-available/$nginx_conf
+sed -i "s/\$__JUNCTION_PORT/${jport}/g" /etc/nginx/sites-available/$nginx_conf
+sed -i "s/\$__TRIBE_PORT/${tport}/g" /etc/nginx/sites-available/$nginx_conf
+sed -i "s|\$__SSL_PATH|${sslDir}|g" /etc/nginx/sites-available/$nginx_conf
 
 ln -fs /etc/nginx/sites-available/$nginx_conf /etc/nginx/sites-enabled/$nginx_conf;
 nginx -t && nginx -s reload;

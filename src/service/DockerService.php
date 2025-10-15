@@ -62,16 +62,24 @@ class DockerService {
      * @throws \Predis\PredisException If Redis operations fail
      */
     public function spawnService(InstanceDTO $instance) {
+        echo "DEBUG: DockerService::spawnService() started\n";
+        
         // Validate image name to prevent invalid Docker commands
         // Only allows alphanumeric characters, hyphens, underscores, and optional tag
+        echo "DEBUG: Validating Docker image name\n";
         if (!preg_match('/^[a-zA-Z0-9-_]+(:[a-zA-Z0-9._-]+)?$/', $instance->getAppName())) {
+            echo "DEBUG: Docker image name validation FAILED\n";
             throw new \InvalidArgumentException('Invalid Docker image name');
         }
+        echo "DEBUG: Docker image name validation PASSED\n";
 
         // Generate a unique job ID for tracking
+        echo "DEBUG: Generating unique job ID\n";
         $jobId = uniqid();
+        echo "DEBUG: Job ID generated: $jobId\n";
 
         // Prepare job data structure for Redis queue
+        echo "DEBUG: Preparing job data structure\n";
         $spawnJob = [
             'title' => $instance->getAppName(),
             'job_id' => $jobId,
@@ -82,11 +90,15 @@ class DockerService {
             'tribe_port' => $instance->getTribePort(),
             'junction_port' => $instance->getJunctionPort()
         ];
+        echo "DEBUG: Job data structure prepared: " . json_encode($spawnJob) . "\n";
 
         // Create job log entry with pending status
+        echo "DEBUG: Creating job log entry\n";
         $this->jobService->createJob($jobId);
+        echo "DEBUG: Job log entry created successfully\n";
 
         // Insert Docker instance record with pending status
+        echo "DEBUG: Inserting Docker instance record into database\n";
         $stmt = $this->db->prepare("
             INSERT INTO dockers (
                 slug, 
@@ -109,11 +121,15 @@ class DockerService {
         $stmt->bindValue(':junction_port', $instance->getJunctionPort());
         $stmt->bindValue(':status', $status);
         $stmt->execute();
+        echo "DEBUG: Docker instance record inserted successfully\n";
 
         // Queue the job in Redis for processing
+        echo "DEBUG: Queuing job in Redis\n";
         $jobData = json_encode($spawnJob);
         $this->redis->lpush('docker_jobs', [$jobData]);
+        echo "DEBUG: Job queued in Redis successfully\n";
 
+        echo "DEBUG: DockerService::spawnService() completed successfully\n";
         return [
             'job_id' => $jobId, 
             'message' => 'Job queued successfully'

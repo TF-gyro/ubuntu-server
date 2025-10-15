@@ -3,12 +3,13 @@ Description=Docker Worker Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/php /path/to/worker.php
+ExecStart=/usr/bin/php /var/www/t0.truearch.io/scripts/worker.php
 Restart=always
-User=your-user
-WorkingDirectory=/path/to/your/project
+User=www-data
+WorkingDirectory=/var/www/t0.truearch.io
 StandardOutput=append:/var/log/docker-worker.log
 StandardError=append:/var/log/docker-worker-error.log
+Environment=PATH=/usr/bin:/bin
 
 [Install]
 WantedBy=multi-user.target

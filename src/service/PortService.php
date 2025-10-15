@@ -124,7 +124,14 @@ class PortService
             throw new \InvalidArgumentException("Port $port is outside the valid range (" . self::MIN_PORT . "-" . self::MAX_PORT . ")");
         }
 
-        exec("netstat -tnlp | grep $port", $output, $status);
-        return $status !== 0;
+        // Use PHP's fsockopen to check if port is available
+        $connection = @fsockopen('127.0.0.1', $port, $errno, $errstr, 1);
+        
+        if (is_resource($connection)) {
+            fclose($connection);
+            return false; // Port is in use
+        } else {
+            return true; // Port is available
+        }
     }
 }
